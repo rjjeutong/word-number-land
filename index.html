@@ -214,6 +214,10 @@
   .daynight .em { font-size: min(18vmin, 140px); line-height: 1; }
   .daynight .tx { font-size: min(6.6vmin, 54px); font-weight: 600; }
 
+  /* writing */
+  .prompt.trace { padding: 0; width: min(94vw, 1150px); overflow: hidden; background: #fffef8; }
+  .prompt.trace canvas { display: block; width: 100%; touch-action: none; }
+
   /* grown-up panel */
   #settings { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(20, 30, 60, 0.82); z-index: 50; color: #f2f5ff; }
   #settings.open { display: flex; }
@@ -281,7 +285,7 @@
 (function () {
 'use strict';
 
-var VERSION = '0.4.0';
+var VERSION = '0.5.0';
 var SAVE_KEY = 'wordnumberland-v1';
 
 /* ================= helpers ================= */
@@ -310,14 +314,16 @@ var WORLDS = [
   { k: 'money', label: 'Money', icon: '\u{1FA99}', deco: '1¢ 5¢', start: 1, grad: 'linear-gradient(160deg,#ffd95a,#e0a800)', bg: 'linear-gradient(180deg,#fff3c4,#e9f9e9)',
     cheer: ['Level up! You are a money master!', 'Wow! Level up! Cha-ching!'] },
   { k: 'time', label: 'Time', icon: '\u{1F550}', deco: '3:00', start: 1, grad: 'linear-gradient(160deg,#7fd8ff,#3a86ff)', bg: 'linear-gradient(180deg,#dcefff,#fff6e0)',
-    cheer: ['Level up! You can tell the time!', 'Wow! Level up! Tick tock, great job!'] }
+    cheer: ['Level up! You can tell the time!', 'Wow! Level up! Tick tock, great job!'] },
+  { k: 'write', label: 'Writing', icon: '\u{1F58D}\uFE0F', deco: 'abc', start: 1, grad: 'linear-gradient(160deg,#ffb36b,#f07b1d)', bg: 'linear-gradient(180deg,#ffe6cc,#fff6e0)',
+    cheer: ['Level up! You are a super writer!', 'Wow! Level up! Beautiful writing!'] }
 ];
 function worldOf(k) { for (var i = 0; i < WORLDS.length; i++) if (WORLDS[i].k === k) return WORLDS[i]; return WORLDS[0]; }
 
 /* ================= save ================= */
 function freshSave() {
   var w = {};
-  WORLDS.forEach(function (W) { w[W.k] = { level: W.start, streak: 0, recent: [], right: 0, total: 0, best: W.start, teach: W.k === 'math' ? 2 : 0, lvRight: 0 }; });
+  WORLDS.forEach(function (W) { w[W.k] = { level: W.start, streak: 0, recent: [], right: 0, total: 0, best: W.start, teach: W.k === 'math' ? 2 : (W.k === 'write' ? 1 : 0), lvRight: 0 }; });
   return { stars: 0, sound: true, rate: 0.9, w: w, mathV: 3 };
 }
 function loadSave() {
@@ -1349,6 +1355,309 @@ function findClockRound() {
   };
 }
 
+
+/* ===================== writing: trace letters with a finger ===================== */
+/* Letters are drawn on handwriting paper: y=0 top line, y=0.5 dashed middle line, y=1 base line,
+   y=1.4 for tails (g j p q y). Each letter is a list of strokes in teaching order; each stroke is
+   M (move), L (line to), A (arc: cx, cy, rx, ry, from degrees, to degrees; y points down, so
+   increasing angles go clockwise) or D (a dot to tap). */
+var LOWER_G = {
+  a: [[['A', 0.3, 0.75, 0.25, 0.25, -20, -380]], [['M', 0.55, 0.5], ['L', 0.55, 1]]],
+  b: [[['M', 0.05, 0], ['L', 0.05, 1]], [['A', 0.3, 0.75, 0.25, 0.25, 180, 540]]],
+  c: [[['A', 0.3, 0.75, 0.25, 0.25, -35, -325]]],
+  d: [[['A', 0.3, 0.75, 0.25, 0.25, -20, -380]], [['M', 0.55, 0], ['L', 0.55, 1]]],
+  e: [[['M', 0.05, 0.75], ['L', 0.55, 0.75], ['A', 0.3, 0.75, 0.25, 0.25, 0, -320]]],
+  f: [[['A', 0.45, 0.2, 0.15, 0.15, -30, -180], ['L', 0.3, 1]], [['M', 0.12, 0.5], ['L', 0.5, 0.5]]],
+  g: [[['A', 0.3, 0.75, 0.25, 0.25, -20, -380]], [['M', 0.55, 0.5], ['L', 0.55, 1.2], ['A', 0.32, 1.2, 0.23, 0.18, 0, 160]]],
+  h: [[['M', 0.05, 0], ['L', 0.05, 1]], [['A', 0.3, 0.75, 0.25, 0.25, 180, 360], ['L', 0.55, 1]]],
+  i: [[['M', 0.1, 0.5], ['L', 0.1, 1]], [['D', 0.1, 0.3]]],
+  j: [[['M', 0.35, 0.5], ['L', 0.35, 1.2], ['A', 0.17, 1.2, 0.18, 0.18, 0, 160]], [['D', 0.35, 0.3]]],
+  k: [[['M', 0.05, 0], ['L', 0.05, 1]], [['M', 0.45, 0.5], ['L', 0.07, 0.76], ['L', 0.47, 1]]],
+  l: [[['M', 0.1, 0], ['L', 0.1, 1]]],
+  m: [[['M', 0.05, 0.5], ['L', 0.05, 1]], [['A', 0.2, 0.68, 0.15, 0.18, 180, 360], ['L', 0.35, 1]], [['A', 0.5, 0.68, 0.15, 0.18, 180, 360], ['L', 0.65, 1]]],
+  n: [[['M', 0.05, 0.5], ['L', 0.05, 1]], [['A', 0.3, 0.72, 0.25, 0.22, 180, 360], ['L', 0.55, 1]]],
+  o: [[['A', 0.3, 0.75, 0.25, 0.25, -90, -450]]],
+  p: [[['M', 0.05, 0.5], ['L', 0.05, 1.4]], [['A', 0.3, 0.75, 0.25, 0.25, 180, 540]]],
+  q: [[['A', 0.3, 0.75, 0.25, 0.25, -20, -380]], [['M', 0.55, 0.5], ['L', 0.55, 1.4]]],
+  r: [[['M', 0.05, 0.5], ['L', 0.05, 1]], [['A', 0.27, 0.72, 0.22, 0.2, 180, 315]]],
+  s: [[['A', 0.28, 0.625, 0.22, 0.125, -25, -270], ['A', 0.28, 0.875, 0.22, 0.125, -90, 155]]],
+  t: [[['M', 0.25, 0.12], ['L', 0.25, 1]], [['M', 0.05, 0.5], ['L', 0.45, 0.5]]],
+  u: [[['M', 0.05, 0.5], ['L', 0.05, 0.75], ['A', 0.3, 0.75, 0.25, 0.25, 180, 0], ['L', 0.55, 0.5]], [['M', 0.55, 0.5], ['L', 0.55, 1]]],
+  v: [[['M', 0.03, 0.5], ['L', 0.3, 1], ['L', 0.57, 0.5]]],
+  w: [[['M', 0.02, 0.5], ['L', 0.2, 1], ['L', 0.38, 0.6], ['L', 0.56, 1], ['L', 0.74, 0.5]]],
+  x: [[['M', 0.05, 0.5], ['L', 0.5, 1]], [['M', 0.5, 0.5], ['L', 0.05, 1]]],
+  y: [[['M', 0.05, 0.5], ['L', 0.3, 0.98]], [['M', 0.55, 0.5], ['L', 0.12, 1.4]]],
+  z: [[['M', 0.05, 0.5], ['L', 0.5, 0.5], ['L', 0.05, 1], ['L', 0.5, 1]]],
+  '.': [[['D', 0.08, 0.95]]]
+};
+var P_BOWL = [['M', 0.05, 0], ['L', 0.3, 0], ['A', 0.3, 0.26, 0.24, 0.26, -90, 90], ['L', 0.05, 0.52]];
+var UPPER_G = {
+  A: [[['M', 0.35, 0], ['L', 0.02, 1]], [['M', 0.35, 0], ['L', 0.68, 1]], [['M', 0.15, 0.62], ['L', 0.55, 0.62]]],
+  B: [[['M', 0.05, 0], ['L', 0.05, 1]], [['M', 0.05, 0], ['L', 0.32, 0], ['A', 0.32, 0.25, 0.22, 0.25, -90, 90], ['L', 0.05, 0.5], ['L', 0.36, 0.5], ['A', 0.36, 0.75, 0.24, 0.25, -90, 90], ['L', 0.05, 1]]],
+  C: [[['A', 0.48, 0.5, 0.45, 0.5, -35, -325]]],
+  D: [[['M', 0.05, 0], ['L', 0.05, 1]], [['M', 0.05, 0], ['L', 0.25, 0], ['A', 0.25, 0.5, 0.42, 0.5, -90, 90], ['L', 0.05, 1]]],
+  E: [[['M', 0.05, 0], ['L', 0.05, 1]], [['M', 0.05, 0], ['L', 0.55, 0]], [['M', 0.05, 0.5], ['L', 0.45, 0.5]], [['M', 0.05, 1], ['L', 0.55, 1]]],
+  F: [[['M', 0.05, 0], ['L', 0.05, 1]], [['M', 0.05, 0], ['L', 0.55, 0]], [['M', 0.05, 0.5], ['L', 0.45, 0.5]]],
+  G: [[['A', 0.48, 0.5, 0.45, 0.5, -35, -360], ['L', 0.6, 0.5]]],
+  H: [[['M', 0.05, 0], ['L', 0.05, 1]], [['M', 0.6, 0], ['L', 0.6, 1]], [['M', 0.05, 0.5], ['L', 0.6, 0.5]]],
+  I: [[['M', 0.3, 0], ['L', 0.3, 1]], [['M', 0.05, 0], ['L', 0.55, 0]], [['M', 0.05, 1], ['L', 0.55, 1]]],
+  J: [[['M', 0.5, 0], ['L', 0.5, 0.72], ['A', 0.28, 0.72, 0.22, 0.28, 0, 180]]],
+  K: [[['M', 0.05, 0], ['L', 0.05, 1]], [['M', 0.55, 0], ['L', 0.07, 0.55], ['L', 0.57, 1]]],
+  L: [[['M', 0.05, 0], ['L', 0.05, 1], ['L', 0.5, 1]]],
+  M: [[['M', 0.05, 1], ['L', 0.05, 0], ['L', 0.4, 0.65], ['L', 0.75, 0], ['L', 0.75, 1]]],
+  N: [[['M', 0.05, 1], ['L', 0.05, 0], ['L', 0.6, 1], ['L', 0.6, 0]]],
+  O: [[['A', 0.48, 0.5, 0.45, 0.5, -90, -450]]],
+  P: [[['M', 0.05, 0], ['L', 0.05, 1]], P_BOWL],
+  Q: [[['A', 0.48, 0.5, 0.45, 0.5, -90, -450]], [['M', 0.55, 0.7], ['L', 0.9, 1.05]]],
+  R: [[['M', 0.05, 0], ['L', 0.05, 1]], P_BOWL, [['M', 0.3, 0.52], ['L', 0.6, 1]]],
+  S: [[['A', 0.42, 0.25, 0.36, 0.25, -25, -270], ['A', 0.42, 0.75, 0.38, 0.25, -90, 155]]],
+  T: [[['M', 0.0, 0], ['L', 0.6, 0]], [['M', 0.3, 0], ['L', 0.3, 1]]],
+  U: [[['M', 0.05, 0], ['L', 0.05, 0.68], ['A', 0.35, 0.68, 0.3, 0.32, 180, 0], ['L', 0.65, 0]]],
+  V: [[['M', 0.0, 0], ['L', 0.35, 1], ['L', 0.7, 0]]],
+  W: [[['M', 0.0, 0], ['L', 0.2, 1], ['L', 0.45, 0.3], ['L', 0.7, 1], ['L', 0.9, 0]]],
+  X: [[['M', 0.0, 0], ['L', 0.6, 1]], [['M', 0.6, 0], ['L', 0.0, 1]]],
+  Y: [[['M', 0.0, 0], ['L', 0.3, 0.5]], [['M', 0.6, 0], ['L', 0.3, 0.5], ['L', 0.3, 1]]],
+  Z: [[['M', 0.05, 0], ['L', 0.6, 0], ['L', 0.05, 1], ['L', 0.6, 1]]]
+};
+var LETTER_NAME = { a: 'ay', b: 'bee', c: 'see', d: 'dee', e: 'ee', f: 'eff', g: 'jee', h: 'aitch', i: 'eye', j: 'jay', k: 'kay', l: 'el', m: 'em', n: 'en', o: 'oh', p: 'pee', q: 'cue', r: 'ar', s: 'ess', t: 'tee', u: 'you', v: 'vee', w: 'double you', x: 'ex', y: 'why', z: 'zee' };
+function letterSay(ch) {
+  var lo = ch.toLowerCase();
+  if (!LETTER_NAME[lo]) return '';
+  return (ch === lo ? 'little ' : 'big ') + LETTER_NAME[lo];
+}
+/* Turn one stroke's commands into points spaced about 0.03 units apart. */
+function strokePoints(ops) {
+  var pts = [], STEP = 0.03;
+  function lineTo(x, y) {
+    var last = pts[pts.length - 1];
+    if (!last) { pts.push({ x: x, y: y }); return; }
+    var d = Math.hypot(x - last.x, y - last.y), n = Math.max(1, Math.ceil(d / STEP));
+    for (var i = 1; i <= n; i++) pts.push({ x: last.x + (x - last.x) * i / n, y: last.y + (y - last.y) * i / n });
+  }
+  ops.forEach(function (op) {
+    if (op[0] === 'M' || op[0] === 'D') pts.push({ x: op[1], y: op[2] });
+    else if (op[0] === 'L') lineTo(op[1], op[2]);
+    else if (op[0] === 'A') {
+      var cx = op[1], cy = op[2], rx = op[3], ry = op[4], a0 = op[5], a1 = op[6];
+      var len = Math.abs(a1 - a0) * Math.PI / 180 * Math.max(rx, ry), n = Math.max(6, Math.ceil(len / STEP));
+      for (var i = 0; i <= n; i++) {
+        var a = (a0 + (a1 - a0) * i / n) * Math.PI / 180;
+        var px = cx + rx * Math.cos(a), py = cy + ry * Math.sin(a);
+        if (i === 0 && pts.length) lineTo(px, py); else pts.push({ x: px, y: py });
+      }
+    }
+  });
+  return pts;
+}
+function glyphOf(ch) {
+  var src = UPPER_G[ch] || LOWER_G[ch];
+  if (!src) return null;
+  var strokes = src.map(function (ops) { return { pts: strokePoints(ops), dot: ops.length === 1 && ops[0][0] === 'D' }; });
+  var maxX = 0;
+  strokes.forEach(function (st) { st.pts.forEach(function (q) { if (q.x > maxX) maxX = q.x; }); });
+  return { ch: ch, strokes: strokes, w: maxX + 0.2 };
+}
+
+var WRITE_WORDS = ['cat', 'dog', 'sun', 'pig', 'bus', 'hat', 'bed', 'cup', 'box', 'fox', 'hen', 'bug', 'van', 'ant', 'egg', 'map', 'pen', 'mom', 'dad', 'red', 'big', 'run', 'hop', 'yes', 'zip', 'jam', 'wet', 'kid'];
+var WRITE_WORDS2 = ['frog', 'ship', 'fish', 'duck', 'star', 'milk', 'tree', 'cake', 'bike', 'moon', 'rain', 'boat', 'play', 'jump', 'book', 'look', 'said', 'they', 'like', 'home'];
+var WRITE_SENT = ['I see a cat.', 'I can run.', 'The dog is big.', 'I like red.', 'We can hop.', 'Mom is here.', 'I am happy.', 'The sun is hot.', 'I see the bus.', 'My cat is fat.', 'I can jump.', 'Dad has a hat.', 'It is fun.', 'I love you.', 'We go home.', 'I like my dog.', 'The pig is pink.', 'Look at me.'];
+var LOWER_LIST = 'abcdefghijklmnopqrstuvwxyz'.split('');
+var UPPER_LIST = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+function traceRound(text, faint, sayLine) {
+  return { kind: 'trace', text: text, faint: faint, say: sayLine, hint: sayLine + ' Start at the green dot.', right: (text.length > 1 ? text + '! ' : '') + pick(PRAISE) };
+}
+function letterTraceRound(list, key, faint) {
+  var ch = pickFresh(key, list);
+  return traceRound(ch, faint, 'Write the ' + letterSay(ch) + '.');
+}
+function wordTraceRound(list, key, faint) {
+  var w = pickFresh(key, list);
+  return traceRound(w, faint, 'Write the word ' + w + '.');
+}
+function sentTraceRound(faint) {
+  var t = pickFresh(faint ? 'ws2' : 'ws1', WRITE_SENT);
+  return traceRound(t, faint, 'Write: ' + t);
+}
+
+var TRACE_COLORS = ['#ff5d73', '#7b61ff', '#1fae8c', '#f07b1d', '#3a86ff', '#e0399a'];
+function renderTrace(r) {
+  promptEl.className = 'prompt trace';
+  promptEl.innerHTML = '<canvas id="tracecv"></canvas>';
+  choicesEl.className = 'choices';
+  choicesEl.innerHTML = '';
+  var cv = $('tracecv'), cx = cv.getContext('2d');
+  var color = pick(TRACE_COLORS);
+  var glyphs = [], units = 0;
+  r.text.split('').forEach(function (ch) {
+    if (ch === ' ') { units += 0.45; return; }
+    var g = glyphOf(ch);
+    if (!g) return;
+    g.ox = units; units += g.w;
+    glyphs.push(g);
+  });
+  units -= 0.15;
+  var W = 0, Hc = 0, H = 0, X0 = 0, Y0 = 0, R = 30, dpr = 1;
+  function layout() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = cv.clientWidth || promptEl.clientWidth;
+    var availH = Math.max(200, Math.min(window.innerHeight * 0.62, W * 0.62));
+    H = Math.min(availH / 1.75, (W * 0.9) / Math.max(units, 0.8), 260);
+    Hc = Math.round(H * 1.75);
+    cv.style.height = Hc + 'px';
+    cv.width = Math.round(W * dpr); cv.height = Math.round(Hc * dpr);
+    X0 = (W - units * H) / 2; Y0 = H * 0.22;
+    R = Math.max(26, H * 0.2);
+  }
+  function P(g, q) { return { x: X0 + (g.ox + q.x) * H, y: Y0 + q.y * H }; }
+  r.gi = 0; r.si = 0; r.k = 0; r.tracking = false; r.trail = []; r.misses = 0;
+  r.playing = false;
+  function cur() { var g = glyphs[r.gi]; return g ? g.strokes[r.si] : null; }
+  function pathOf(g, st, upto) {
+    var pts = st.pts, n = upto == null ? pts.length : Math.min(upto + 1, pts.length);
+    cx.beginPath();
+    for (var i = 0; i < n; i++) { var q = P(g, pts[i]); if (i) cx.lineTo(q.x, q.y); else cx.moveTo(q.x, q.y); }
+  }
+  function draw(t) {
+    cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    cx.clearRect(0, 0, W, Hc);
+    /* handwriting paper */
+    cx.lineWidth = Math.max(2, H * 0.018);
+    cx.strokeStyle = '#9cc3f0'; cx.setLineDash([]);
+    cx.beginPath(); cx.moveTo(10, Y0); cx.lineTo(W - 10, Y0); cx.stroke();
+    cx.strokeStyle = '#f2a0a0';
+    cx.beginPath(); cx.moveTo(10, Y0 + H); cx.lineTo(W - 10, Y0 + H); cx.stroke();
+    cx.strokeStyle = '#b9cbe6'; cx.setLineDash([H * 0.08, H * 0.07]);
+    cx.beginPath(); cx.moveTo(10, Y0 + H * 0.5); cx.lineTo(W - 10, Y0 + H * 0.5); cx.stroke();
+    cx.setLineDash([]);
+    cx.lineCap = 'round'; cx.lineJoin = 'round';
+    glyphs.forEach(function (g, gi) {
+      g.strokes.forEach(function (st, si) {
+        var done = gi < r.gi || (gi === r.gi && si < r.si);
+        if (st.dot) {
+          var q = P(g, st.pts[0]);
+          cx.fillStyle = done ? color : (r.faint ? 'rgba(120,130,160,0.22)' : '#c4cad8');
+          cx.beginPath(); cx.arc(q.x, q.y, H * (done ? 0.07 : 0.055), 0, Math.PI * 2); cx.fill();
+          return;
+        }
+        if (!done) {
+          pathOf(g, st);
+          if (r.faint) { cx.strokeStyle = 'rgba(120,130,160,0.2)'; cx.lineWidth = H * 0.1; cx.setLineDash([]); }
+          else { cx.strokeStyle = '#c4cad8'; cx.lineWidth = H * 0.06; cx.setLineDash([H * 0.02, H * 0.09]); }
+          cx.stroke(); cx.setLineDash([]);
+        }
+        if (done || (gi === r.gi && si === r.si && r.k > 0)) {
+          pathOf(g, st, done ? null : r.k);
+          cx.strokeStyle = color; cx.lineWidth = H * 0.11; cx.stroke();
+        }
+      });
+    });
+    /* his own finger trail, faint */
+    if (r.trail.length > 1) {
+      cx.beginPath(); cx.moveTo(r.trail[0].x, r.trail[0].y);
+      for (var i = 1; i < r.trail.length; i++) cx.lineTo(r.trail[i].x, r.trail[i].y);
+      cx.strokeStyle = 'rgba(29,42,68,0.15)'; cx.lineWidth = H * 0.05; cx.stroke();
+    }
+    /* where to go next: a pulsing green dot with an arrow */
+    var st = cur();
+    if (st && !r.done) {
+      var g = glyphs[r.gi], q = P(g, st.pts[r.k]);
+      var pulse = 1 + 0.15 * Math.sin(t / 180);
+      cx.fillStyle = '#2ecc71';
+      cx.beginPath(); cx.arc(q.x, q.y, H * 0.085 * pulse, 0, Math.PI * 2); cx.fill();
+      cx.fillStyle = '#fff';
+      cx.beginPath(); cx.arc(q.x, q.y, H * 0.03, 0, Math.PI * 2); cx.fill();
+      if (!st.dot && !r.faint) {
+        var j = Math.min(st.pts.length - 1, r.k + 4), q2 = P(g, st.pts[j]);
+        var ang = Math.atan2(q2.y - q.y, q2.x - q.x), ax = q.x + Math.cos(ang) * H * 0.2, ay = q.y + Math.sin(ang) * H * 0.2, s = H * 0.07;
+        cx.fillStyle = '#2ecc71';
+        cx.beginPath();
+        cx.moveTo(ax + Math.cos(ang) * s, ay + Math.sin(ang) * s);
+        cx.lineTo(ax + Math.cos(ang + 2.4) * s, ay + Math.sin(ang + 2.4) * s);
+        cx.lineTo(ax + Math.cos(ang - 2.4) * s, ay + Math.sin(ang - 2.4) * s);
+        cx.closePath(); cx.fill();
+      }
+    }
+  }
+  function loop(t) {
+    if (round !== r || !cv.isConnected) return;
+    draw(t || 0);
+    requestAnimationFrame(loop);
+  }
+  function strokeDone() {
+    var g = glyphs[r.gi];
+    r.si++; r.k = 0; r.trail = [];
+    sPop();
+    if (r.si >= g.strokes.length) {
+      r.si = 0; r.gi++;
+      var q = P(g, { x: g.w / 2 - 0.1, y: 0.6 }), rect = cv.getBoundingClientRect();
+      burst(rect.left + q.x, rect.top + q.y, 18, 7);
+      if (r.gi >= glyphs.length) {
+        r.done = true;
+        sDing(); cheerHelper();
+        roundDone(r, promptEl);
+        return;
+      }
+      if (!r.playing && /[a-zA-Z]/.test(g.ch) && glyphs.length > 1) say(r.text.length > 1 && r.text.indexOf(' ') < 0 ? g.ch : letterSay(g.ch), null, 1.1);
+    }
+  }
+  function local(ev) { var b = cv.getBoundingClientRect(); return { x: ev.clientX - b.left, y: ev.clientY - b.top }; }
+  cv.addEventListener('pointerdown', function (ev) {
+    ev.preventDefault(); unlockAudio();
+    if (r.done || busy || r.playing || round !== r) return;
+    var st = cur(); if (!st) return;
+    var p = local(ev), q = P(glyphs[r.gi], st.pts[r.k]);
+    if (Math.hypot(p.x - q.x, p.y - q.y) > R * 1.3) {
+      r.misses++;
+      if (r.misses % 3 === 0) say('Start at the green dot.');
+      return;
+    }
+    if (st.dot) { strokeDone(); return; }
+    try { cv.setPointerCapture(ev.pointerId); } catch (e) {}
+    r.tracking = true; r.trail = [p];
+  });
+  cv.addEventListener('pointermove', function (ev) {
+    if (!r.tracking || r.done) return;
+    ev.preventDefault();
+    var st = cur(); if (!st) return;
+    var p = local(ev), g = glyphs[r.gi];
+    r.trail.push(p);
+    if (r.trail.length > 400) r.trail.shift();
+    var best = r.k;
+    for (var j = r.k + 1; j <= Math.min(st.pts.length - 1, r.k + 8); j++) {
+      var q = P(g, st.pts[j]);
+      if (Math.hypot(p.x - q.x, p.y - q.y) < R) best = j;
+    }
+    r.k = best;
+    if (r.k >= st.pts.length - 2) { r.tracking = false; strokeDone(); }
+  });
+  function lift() { r.tracking = false; r.trail = []; }
+  cv.addEventListener('pointerup', lift);
+  cv.addEventListener('pointercancel', lift);
+
+  /* "Watch me": the crayon writes the first letter by itself, then it is his turn. */
+  r.demo = function (done) {
+    r.playing = true;
+    var g0 = glyphs[0], si = 0, k = 0;
+    function step() {
+      if (round !== r) return;
+      var st = g0.strokes[si];
+      if (!st) { r.gi = 0; r.si = 0; r.k = 0; r.playing = false; if (done) done(); return; }
+      r.gi = 0; r.si = si;
+      if (st.dot) { r.k = 0; si++; sPop(); setTimeout(step, 450); return; }
+      r.k = k; k += 1;
+      if (k >= st.pts.length) { si++; k = 0; sPop(); r.si = si; r.k = 0; setTimeout(step, 350); return; }
+      setTimeout(step, 28);
+    }
+    step();
+  };
+  layout();
+  requestAnimationFrame(loop);
+  r.relayout = layout;
+  /* test hook: screen points of the stroke to trace next */
+  r.nextPoints = function () { var st = cur(), b = cv.getBoundingClientRect(); return st ? st.pts.map(function (q) { var z = P(glyphs[r.gi], q); return { x: b.left + z.x, y: b.top + z.y }; }) : []; };
+}
+
 /* ================= levels ================= */
 var LEVELS = {
   read: [
@@ -1393,6 +1702,15 @@ var LEVELS = {
     { name: "Find the clock (o'clock)", need: 4, intro: '', make: findClockRound },
     { name: 'Half past', need: 4, intro: '', make: function () { return readClockRound([0, 30]); } },
     { name: 'Quarter past and to', need: 4, intro: '', make: function () { return readClockRound([0, 15, 30, 45]); } }
+  ],
+  write: [
+    { name: 'Little letters (a-z), dotted guide', need: 4, goal: 15, teach: 1, intro: 'Trace with your finger. Start at the green dot.', make: function () { return letterTraceRound(LOWER_LIST, 'wl', false); } },
+    { name: 'Big letters (A-Z), dotted guide', need: 4, goal: 15, teach: 1, intro: 'Now big letters!', make: function () { return letterTraceRound(UPPER_LIST, 'wu', false); } },
+    { name: 'Short words (cat, dog)', need: 4, goal: 12, teach: 1, intro: 'Now write words!', make: function () { return wordTraceRound(WRITE_WORDS, 'ww1', false); } },
+    { name: 'Letters on your own (faint guide)', need: 4, goal: 15, intro: 'Write it on your own.', make: function () { return letterTraceRound(LOWER_LIST.concat(UPPER_LIST), 'wf', true); } },
+    { name: 'Words on your own (faint guide)', need: 4, goal: 12, intro: 'Write the word on your own.', make: function () { return wordTraceRound(WRITE_WORDS.concat(WRITE_WORDS2), 'ww2', true); } },
+    { name: 'Sentences (dotted guide)', need: 4, goal: 10, intro: 'Now write a sentence!', make: function () { return sentTraceRound(false); } },
+    { name: 'Sentences on your own', need: 4, goal: 15, intro: 'Write the sentence on your own.', make: function () { return sentTraceRound(true); } }
   ]
 };
 
@@ -1503,6 +1821,22 @@ function nextRound() {
   }
   if (r.kind === 'build') renderBuild(r);
   else if (r.kind === 'shop') renderShop(r);
+  else if (r.kind === 'trace') {
+    renderTrace(r);
+    if (ws.teach > 0) {
+      ws.teach--; r.taught = true; persist();
+      restart(stageEl, 'enter');
+      renderDots();
+      var leadT = (introPending && lv.intro ? lv.intro + ' ' : '') + 'Watch me first.';
+      introPending = false;
+      setTimeout(function () {
+        if (round !== r) return;
+        say(leadT);
+        r.demo(function () { if (round === r) say('Now you try! ' + r.say); });
+      }, 300);
+      return;
+    }
+  }
   else renderChoice(r);
   restart(stageEl, 'enter');
   renderDots();
@@ -1784,7 +2118,7 @@ tapBtn($('btnSound'), function () { save.sound = !save.sound; persist(); renderS
 })();
 
 /* ================= lifecycle ================= */
-function onResize() { sizeFx(); }
+function onResize() { sizeFx(); if (round && round.relayout) round.relayout(); }
 window.addEventListener('resize', onResize);
 window.addEventListener('orientationchange', function () { setTimeout(onResize, 200); });
 document.addEventListener('visibilitychange', function () {
@@ -1799,7 +2133,7 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
 }
 
 /* Test hook for automated checks (harmless in play). */
-window.__wnl = { save: function () { return save; }, round: function () { return round; }, levels: LEVELS, enter: enterWorld, home: showHome, worlds: WORLDS };
+window.__wnl = { save: function () { return save; }, round: function () { return round; }, levels: LEVELS, enter: enterWorld, home: showHome, worlds: WORLDS, glyphOf: glyphOf };
 })();
 </script>
 </body>

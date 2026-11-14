@@ -1,7 +1,7 @@
 /* Word and Number Land service worker. Bump CACHE_NAME on every deploy. */
 'use strict';
 
-var CACHE_NAME = 'wordnumberland-v4';
+var CACHE_NAME = 'wordnumberland-v5';
 var ASSETS = [
   './',
   './index.html',
@@ -24,7 +24,10 @@ var ASSETS = [
   './art/icon-math.webp',
   './art/icon-spell.webp',
   './art/icon-money.webp',
-  './art/icon-time.webp'
+  './art/icon-time.webp',
+  './art/icon-write.webp',
+  './art/helper-write.webp',
+  './art/bg-write.webp'
 ];
 var NETWORK_TIMEOUT_MS = 2500;
 

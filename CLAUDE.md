@@ -136,3 +136,22 @@ The whole set is about 550 KB.
   turtle, Money the piggy, Time the clock.
 - `bg-<world>.webp` and `bg-home.webp`: backgrounds with an empty middle for the cards.
 - `sw.js` precaches every art file. Add any new picture to `ASSETS` there.
+
+## Writing (v0.5.0, 2026-11-14)
+
+Robert asked to "teach him how to write. draw letters and words and sentences". The `write`
+world draws handwriting paper on a canvas (`renderTrace`): a blue top line, a dashed middle line
+and a red base line. Letters are hand-made stroke paths in `LOWER_G` and `UPPER_G`, plain print
+with the strokes in teaching order. A pulsing green dot (with an arrow on guided levels) shows
+where to start and which way to go. His finger has to stay within about 0.2 of the letter
+height of the path, and lifting his finger keeps his progress. Each stroke fills in with crayon
+colour; dots (i, j, the full stop) are taps. A finished letter bursts and the voice says its name.
+The first round of levels 1-3 runs `r.demo` ("Watch me first"), where the crayon writes the
+first letter by itself.
+
+Levels: 1 little letters, 2 big letters, 3 short words, 4 letters with only a faint guide,
+5 words with a faint guide, 6 sentences, 7 sentences with a faint guide. These levels use `goal`
+like reading. A tracing round can't be failed, so he never drops a level here.
+Helper: the crayon. Background: an art room. These 2 pictures cost 1 credit.
+To add a letter shape or punctuation, add strokes to the glyph tables. `__wnl.glyphOf(ch)` is
+the test hook for drawing and checking them.

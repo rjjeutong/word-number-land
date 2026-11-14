@@ -8,6 +8,7 @@ CSS and JS with no build step. It works offline once installed.
 - Spelling: missing letter, then spelling words from letter tiles.
 - Money: find the coin, count coins, then a toy shop where he pays the exact price.
 - Time: day or night, o'clock, half past, quarter past and quarter to.
+- Writing: trace letters with a finger on lined paper, then words, then sentences, with the guide fading.
 - The game adapts: it moves him up after a run of right answers and quietly
   back down after misses.
 - The iPad's built-in voice reads out instructions, numbers and hints.
