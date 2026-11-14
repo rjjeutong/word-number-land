@@ -41,7 +41,13 @@
   .screen.on { display: flex; }
 
   /* ---------- home ---------- */
-  #home { align-items: center; justify-content: center; }
+  #home { align-items: center; justify-content: center; background: url("art/bg-home.webp") center / cover no-repeat, linear-gradient(180deg, var(--sky1), var(--sky2)); }
+  #play { background-position: center; background-size: cover; background-repeat: no-repeat; }
+  .world img.ic { width: calc(var(--t) * 0.7); height: calc(var(--t) * 0.7); object-fit: contain; filter: drop-shadow(0 0.8vmin 0 rgba(0,0,0,0.12)); pointer-events: none; }
+  .homehelper { position: absolute; bottom: env(safe-area-inset-bottom, 0px); width: min(24vmin, 230px); pointer-events: none; animation: bob 3.4s ease-in-out infinite; }
+  .homehelper.l { left: max(1vmin, env(safe-area-inset-left, 0px)); }
+  .homehelper.r { right: max(1vmin, env(safe-area-inset-right, 0px)); animation-delay: -1.7s; }
+  @media (orientation: portrait) { .homehelper { width: min(26vw, 200px); } }
   #homeTop { position: absolute; left: 0; right: 0; top: env(safe-area-inset-top, 0px); height: 13vmin; display: flex; align-items: center; justify-content: space-between; padding: 0 3vmin; }
   .roundBtn { width: 11vmin; height: 11vmin; max-width: 84px; max-height: 84px; border-radius: 50%; background: rgba(255,255,255,0.85); box-shadow: 0 4px 0 rgba(0,0,0,0.12); font-size: min(6vmin, 46px); display: flex; align-items: center; justify-content: center; }
   .roundBtn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.12); }
@@ -152,14 +158,12 @@
   .plus { color: #8a94ad; font-weight: 800; }
 
   /* the monster */
-  #monster { position: absolute; left: 2vmin; bottom: 2vmin; width: 19vmin; height: 17vmin; display: none; pointer-events: none; }
-  #monster.on { display: block; }
-  #monster .body { position: absolute; inset: 0; background: radial-gradient(circle at 40% 30%, #9af59a, #3fbf4f 70%); border-radius: 50% 50% 42% 42%; box-shadow: 0 1vmin 0 rgba(0,0,0,0.15); animation: bob 2.4s ease-in-out infinite; }
-  #monster .eye { position: absolute; top: 18%; width: 24%; height: 28%; background: #fff; border-radius: 50%; }
-  #monster .eye::after { content: ""; position: absolute; width: 45%; height: 45%; left: 30%; top: 35%; background: #1d2a44; border-radius: 50%; }
-  #monster .eye.l { left: 20%; } #monster .eye.r { right: 20%; }
-  #monster .mouth { position: absolute; left: 26%; right: 26%; top: 56%; height: 16%; background: #6b1c3a; border-radius: 0 0 50% 50%; transition: height 0.12s; }
-  #monster.chomp .mouth { animation: chomp 0.3s ease-in-out 4; }
+  #helper { position: absolute; left: 1vmin; bottom: 1vmin; width: min(21vmin, 200px); pointer-events: none; z-index: 0; animation: bob 2.6s ease-in-out infinite; }
+  #helper.chomp { animation: munch 0.32s ease-in-out 4; }
+  #helper.cheer { animation: hop 0.5s ease-out 2; }
+  @keyframes munch { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12, 0.9); } }
+  @keyframes hop { 0%, 100% { transform: translateY(0) rotate(0); } 40% { transform: translateY(-4vmin) rotate(-6deg); } }
+  #choices, #prompt { position: relative; z-index: 1; }
   @keyframes chomp { 0%, 100% { height: 16%; } 50% { height: 32%; } }
   .flyer { position: fixed; z-index: 20; pointer-events: none; transition: transform 0.6s cubic-bezier(.5,-0.3,.7,1), opacity 0.6s; }
 
@@ -167,6 +171,7 @@
   #party { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; flex-direction: column; z-index: 30; background: rgba(255,255,255,0.55); }
   #party.on { display: flex; }
   #party .trophy { font-size: min(34vmin, 280px); animation: trophy 1s ease-out both; }
+  #party .trophy img { width: min(44vmin, 380px); display: block; }
   #party .stars { font-size: min(10vmin, 80px); animation: popIn 0.6s 0.3s ease-out both; }
   @keyframes trophy { 0% { transform: scale(0) rotate(-30deg); } 60% { transform: scale(1.2) rotate(8deg); } 100% { transform: scale(1) rotate(0); } }
   #fx { position: fixed; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; z-index: 40; }
@@ -236,6 +241,8 @@
     <button id="gearBtn" class="roundBtn smallBtn" type="button" aria-label="Grown-ups">&#9881;&#65039;</button>
   </div>
   <div id="worlds"></div>
+  <img class="homehelper l" src="art/helper-read.webp" alt="">
+  <img class="homehelper r" src="art/helper-math.webp" alt="">
 </section>
 
 <section id="play" class="screen">
@@ -247,7 +254,7 @@
   <div id="stage">
     <div id="prompt" class="prompt"></div>
     <div id="choices" class="choices"></div>
-    <div id="monster"><div class="body"><div class="eye l"></div><div class="eye r"></div><div class="mouth"></div></div></div>
+    <img id="helper" src="art/helper-math.webp" alt="">
   </div>
 </section>
 
@@ -274,7 +281,7 @@
 (function () {
 'use strict';
 
-var VERSION = '0.3.0';
+var VERSION = '0.4.0';
 var SAVE_KEY = 'wordnumberland-v1';
 
 /* ================= helpers ================= */
@@ -1249,6 +1256,7 @@ function onShopTap(r, t, b) {
     r.done = true;
     sDing();
     burstFrom($('paybox'), 40);
+    cheerHelper();
     roundDone(r);
   } else if (r.total > r.price) {
     r.firstTry = false; r.locked = true; r.wrongHere++;
@@ -1390,13 +1398,13 @@ var LEVELS = {
 
 /* ================= screens ================= */
 var homeEl = $('home'), playEl = $('play'), promptEl = $('prompt'), choicesEl = $('choices'), stageEl = $('stage');
-var speakerEl = $('speaker'), dotsEl = $('dots'), monsterEl = $('monster'), partyEl = $('party');
+var speakerEl = $('speaker'), dotsEl = $('dots'), monsterEl = $('helper'), partyEl = $('party');
 var world = null, round = null, busy = false, introPending = false, hintTimer = null;
 var HAS_HUB = location.pathname !== '/' && location.pathname !== '/index.html' && /^https?:$/.test(location.protocol) && location.hostname !== 'localhost' && !/^\d+\.\d+\.\d+\.\d+$/.test(location.hostname);
 
 var worldsEl = $('worlds');
 WORLDS.forEach(function (W, i) {
-  var b = el('button', 'world', '<div class="big">' + W.icon + '</div><div class="deco">' + W.deco + '</div><div class="lvl" id="lvl-' + W.k + '"></div>');
+  var b = el('button', 'world', '<img class="ic" src="art/icon-' + W.k + '.webp" alt=""><div class="lvl" id="lvl-' + W.k + '"></div>');
   b.type = 'button';
   b.setAttribute('aria-label', W.label);
   b.style.background = W.grad;
@@ -1409,7 +1417,9 @@ function renderHome() {
   WORLDS.forEach(function (W) {
     var n = LEVELS[W.k].length, lv = save.w[W.k].level, h = '';
     for (var i = 1; i <= n; i++) h += i <= lv ? '⭐' : '<span style="opacity:.35">⭐</span>';
-    $('lvl-' + W.k).innerHTML = h;
+    var lvlEl = $('lvl-' + W.k);
+    lvlEl.innerHTML = h;
+    lvlEl.style.fontSize = 'calc(var(--t) * ' + Math.min(0.065, 0.78 / n).toFixed(3) + ')';
   });
 }
 function showHome() {
@@ -1420,7 +1430,8 @@ function showHome() {
 function enterWorld(w) {
   world = w; busy = false; introPending = true;
   homeEl.classList.remove('on'); playEl.classList.add('on');
-  monsterEl.classList.toggle('on', w === 'math');
+  monsterEl.src = 'art/helper-' + w + '.webp';
+  playEl.style.backgroundImage = 'url("art/bg-' + w + '.webp")';
   document.body.style.background = worldOf(w).bg;
   nextRound();
 }
@@ -1547,7 +1558,7 @@ function onChoice(r, c, b) {
     if (c.after) c.after();
     burstFrom(b, 28);
     if (r.onRight) r.onRight();
-    if (world === 'math') feedMonster();
+    if (world === 'math') feedMonster(); else cheerHelper();
     roundDone(r, b);
   } else {
     r.firstTry = false; r.wrong++;
@@ -1602,6 +1613,7 @@ function onBuildTap(r, w, b) {
       r.done = true;
       sDing();
       burstFrom(promptEl, 40);
+      cheerHelper();
       roundDone(r, promptEl);
     }
   } else {
@@ -1618,9 +1630,10 @@ function onBuildTap(r, w, b) {
   }
 }
 
+function cheerHelper() { restart(monsterEl, 'cheer'); }
 function feedMonster() {
   var apples = promptEl.querySelectorAll('.ap:not(.gone):not(.hid)');
-  var body = monsterEl.querySelector('.mouth');
+  var body = monsterEl;
   Array.prototype.forEach.call(apples, function (ap, i) { if (i < 12) flyTo(ap, body, '\u{1F34E}', i * 70); });
   setTimeout(function () { restart(monsterEl, 'chomp'); sChomp(); }, 450);
 }
@@ -1675,6 +1688,8 @@ function roundDone(r, fromNode) {
 
 function celebrate(cb) {
   partyEl.classList.add('on');
+  partyEl.querySelector('.trophy').innerHTML = '<img src="art/helper-' + world + '.webp" alt="">';
+  partyEl.querySelector('.stars').innerHTML = '\u{1F3C6}\u2B50\u2B50\u2B50';
   restart(partyEl.querySelector('.trophy'), 'trophy');
   sFanfare();
   rain(140);

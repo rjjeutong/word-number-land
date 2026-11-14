@@ -119,3 +119,20 @@ apostrophe in double quotes. Every picture is an emoji, so check that it
 renders on iOS.
 
 Save key: `wordnumberland-v1`. Local server port: 8082.
+
+## Art (v0.4.0, 2026-11-14)
+
+The pictures in `art/` are Higgsfield images that Robert approved after seeing samples. He said
+"don't burn all my credit", so ask before making more. Model: `gpt_image_2_6`, medium
+quality, transparent background for icons and helpers, 0.5 credits each. All 17 cost 8.5
+credits. Prompt style: "Soft glossy 3D cartoon style like a modern kids' mobile game,
+bright cheerful colors, gentle soft shading, thick rounded shapes".
+Convert with PIL to WebP: icons and helpers at 420px (q85), backgrounds at 1400px (q78).
+The whole set is about 550 KB.
+
+- `icon-<world>.webp`: the home buttons. `icon-write` is ready for the Writing world.
+- `helper-<world>.webp`: the corner helper in each world. The monster (math) chomps; the
+  others hop on a right answer and show up big at a level-up. Reading is the owl, Spelling the
+  turtle, Money the piggy, Time the clock.
+- `bg-<world>.webp` and `bg-home.webp`: backgrounds with an empty middle for the cards.
+- `sw.js` precaches every art file. Add any new picture to `ASSETS` there.

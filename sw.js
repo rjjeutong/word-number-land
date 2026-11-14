@@ -1,14 +1,30 @@
 /* Word and Number Land service worker. Bump CACHE_NAME on every deploy. */
 'use strict';
 
-var CACHE_NAME = 'wordnumberland-v3';
+var CACHE_NAME = 'wordnumberland-v4';
 var ASSETS = [
   './',
   './index.html',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
-  './icons/apple-touch-icon.png'
+  './icons/apple-touch-icon.png',
+  './art/bg-home.webp',
+  './art/bg-read.webp',
+  './art/bg-math.webp',
+  './art/bg-spell.webp',
+  './art/bg-money.webp',
+  './art/bg-time.webp',
+  './art/helper-read.webp',
+  './art/helper-math.webp',
+  './art/helper-spell.webp',
+  './art/helper-money.webp',
+  './art/helper-time.webp',
+  './art/icon-read.webp',
+  './art/icon-math.webp',
+  './art/icon-spell.webp',
+  './art/icon-money.webp',
+  './art/icon-time.webp'
 ];
 var NETWORK_TIMEOUT_MS = 2500;
 
