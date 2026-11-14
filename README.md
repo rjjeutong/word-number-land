@@ -5,6 +5,9 @@ CSS and JS with no build step. It works offline once installed.
 
 - Reading: 10 levels, from short words up to little stories.
 - Numbers: feed the monster, adding to 10, mystery box (2 + ? = 5), take away.
+- Spelling: missing letter, then spelling words from letter tiles.
+- Money: find the coin, count coins, then a toy shop where he pays the exact price.
+- Time: day or night, o'clock, half past, quarter past and quarter to.
 - The game adapts: it moves him up after a run of right answers and quietly
   back down after misses.
 - The iPad's built-in voice reads out instructions, numbers and hints.

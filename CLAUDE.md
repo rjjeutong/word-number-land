@@ -1,7 +1,7 @@
 # Word and Number Land
 
-A learning game for Robert's son: a Reading world and a Numbers world in one web
-app. Read `../CLAUDE.md` first for the player, the hard rules and the iPad
+A learning game for Robert's son: Reading, Numbers, Spelling, Money and Time
+worlds in one web app. Read `../CLAUDE.md` first for the player, the hard rules and the iPad
 checklist. This file only covers what is specific to this game. Planned and
 built 2026-11-14, after researching Reading Eggs, Teach Your Monster to Read,
 Phonics Hero, DragonBox and Todo Math. We use their kinds of mechanics only,
@@ -42,6 +42,33 @@ Numbers (`LEVELS.math`):
 2. Adding to 10
 3. Mystery box (a + ? = c)
 4. Take away
+
+Spelling (`LEVELS.spell`, added 2026-11-14 v0.2.0, starts at 1):
+1. Missing vowel (picture + c_t)
+2. Spell short words
+3. Spell blends
+4. Spell long vowels (letter tiles plus decoy letters)
+5. Spell sight words (no picture)
+
+Money (`LEVELS.money`, US coins drawn in CSS, starts at 1):
+1. Find the coin
+2. Count pennies
+3. Nickels plus pennies (the voice counts up 5, 10, 11...)
+4. Toy shop with pennies and nickels: tap coins to pay the exact price. If he
+   pays too much, the coin bounces back. After two overpays the best coin to
+   tap wiggles.
+5. Toy shop with all four coins
+
+Time (`LEVELS.time`, SVG clock with a short red hour hand and a long blue
+minute hand, starts at 1):
+1. Day or night
+2. Read the clock (o'clock)
+3. Find the clock
+4. Half past
+5. Quarter past and quarter to
+
+The worlds are listed in the `WORLDS` array (tile icon, colours, cheer lines,
+start level). To add a world, add an entry there and in `LEVELS`.
 
 ## Moving up and down
 

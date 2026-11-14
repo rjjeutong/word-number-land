@@ -47,19 +47,17 @@
   .roundBtn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.12); }
   .smallBtn { width: 8vmin; height: 8vmin; max-width: 56px; max-height: 56px; font-size: min(4.5vmin, 30px); opacity: 0.7; }
   .starCount { font-size: min(7vmin, 52px); font-weight: 700; display: flex; align-items: center; gap: 1vmin; background: rgba(255,255,255,0.7); padding: 0.6vmin 3vmin; border-radius: 99px; }
-  #worlds { display: flex; gap: 5vmin; flex-wrap: wrap; justify-content: center; align-items: center; }
+  #worlds { --t: min(27vw, 34vh); display: flex; gap: 4vmin; flex-wrap: wrap; justify-content: center; align-items: center; max-width: calc(var(--t) * 3 + 10vmin); margin-top: 8vmin; }
+  @media (orientation: portrait) { #worlds { --t: min(40vw, 23vh); max-width: calc(var(--t) * 2 + 6vmin); } }
   .world {
-    width: min(40vw, 52vh); height: min(40vw, 52vh); border-radius: 7vmin; color: #fff;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2vmin;
-    box-shadow: 0 2vmin 0 rgba(0,0,0,0.18); position: relative; animation: bob 3s ease-in-out infinite;
+    width: var(--t); height: var(--t); border-radius: 6vmin; color: #fff;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.2vmin;
+    box-shadow: 0 1.6vmin 0 rgba(0,0,0,0.18); position: relative; animation: bob 3s ease-in-out infinite;
   }
-  @media (orientation: portrait) { .world { width: min(62vw, 36vh); height: min(62vw, 36vh); } }
-  .world:active { transform: translateY(1.5vmin); box-shadow: 0 0.5vmin 0 rgba(0,0,0,0.18); }
-  .world.read { background: linear-gradient(160deg, #9d8bff, var(--read)); }
-  .world.math { background: linear-gradient(160deg, #ffc15e, var(--math)); animation-delay: -1.5s; }
-  .world .big { font-size: min(18vmin, 150px); line-height: 1; filter: drop-shadow(0 1vmin 0 rgba(0,0,0,0.15)); }
-  .world .deco { font-size: min(7vmin, 56px); font-weight: 800; letter-spacing: 0.1em; opacity: 0.95; }
-  .world .lvl { display: flex; gap: 0.6vmin; font-size: min(3.4vmin, 26px); }
+  .world:active { transform: translateY(1.2vmin); box-shadow: 0 0.4vmin 0 rgba(0,0,0,0.18); }
+  .world .big { font-size: calc(var(--t) * 0.36); line-height: 1; filter: drop-shadow(0 1vmin 0 rgba(0,0,0,0.15)); }
+  .world .deco { font-size: calc(var(--t) * 0.13); font-weight: 800; letter-spacing: 0.08em; opacity: 0.95; }
+  .world .lvl { display: flex; gap: 0.4vmin; font-size: calc(var(--t) * 0.065); }
   @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.2vmin); } }
 
   /* ---------- play ---------- */
@@ -153,6 +151,44 @@
   @keyframes trophy { 0% { transform: scale(0) rotate(-30deg); } 60% { transform: scale(1.2) rotate(8deg); } 100% { transform: scale(1) rotate(0); } }
   #fx { position: fixed; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; z-index: 40; }
 
+  /* spelling */
+  .tile.letter { width: min(16vmin, 124px); height: min(16vmin, 124px); font-size: min(11vmin, 88px); font-weight: 800; }
+  .slot.letter { min-width: min(11vmin, 84px); height: min(12vmin, 92px); font-size: min(8.5vmin, 68px); }
+  .spellgap { display: flex; gap: 1.6vmin; font-size: min(12vmin, 96px); font-weight: 800; }
+  .spellgap .ch { min-width: 0.8em; text-align: center; }
+  .spellgap .ch.gap2 { min-width: 0.9em; background: #eef2fb; border-radius: 0.15em; border-bottom: 0.08em solid #9aa6c2; color: var(--good); }
+
+  /* money */
+  .coin {
+    --cs: 0.42vmin; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 800; flex: 0 0 auto; box-sizing: border-box;
+    box-shadow: inset 0 0 0 calc(var(--cs) * 1.4) rgba(0,0,0,0.13), 0 calc(var(--cs) * 1.5) 0 rgba(0,0,0,0.18);
+    background: radial-gradient(circle at 35% 30%, #f4f6f8, #aab3bd 75%); color: #4b5563;
+  }
+  .coin.penny { width: calc(var(--cs) * 19); height: calc(var(--cs) * 19); font-size: calc(var(--cs) * 6.5); background: radial-gradient(circle at 35% 30%, #f6b98a, #b8692e 75%); color: #5a2a0a; }
+  .coin.nickel { width: calc(var(--cs) * 21.2); height: calc(var(--cs) * 21.2); font-size: calc(var(--cs) * 7); }
+  .coin.dime { width: calc(var(--cs) * 17.9); height: calc(var(--cs) * 17.9); font-size: calc(var(--cs) * 6); }
+  .coin.quarter { width: calc(var(--cs) * 24.3); height: calc(var(--cs) * 24.3); font-size: calc(var(--cs) * 8); }
+  .tile .coin { --cs: 0.9vmin; }
+  .coinpile { display: flex; flex-wrap: wrap; gap: 1.4vmin; justify-content: center; align-items: center; max-width: 80vmin; }
+  .coinpile .coin { --cs: 0.55vmin; }
+  .tile.cointray { width: min(19vw, 22vh); height: min(19vw, 22vh); }
+  .shop { display: flex; align-items: center; gap: 4vmin; }
+  .toy { font-size: min(18vmin, 140px); line-height: 1; position: relative; }
+  .tag { position: absolute; right: -4vmin; top: -2vmin; background: #ffd23f; color: var(--ink); font-size: min(6vmin, 48px); font-weight: 800; padding: 0.5vmin 2vmin; border-radius: 2vmin; transform: rotate(8deg); box-shadow: 0 0.6vmin 0 rgba(0,0,0,0.15); }
+  .paybox { min-width: 34vmin; min-height: 16vmin; border: 0.6vmin dashed #b9c3da; border-radius: 3vmin; display: flex; flex-wrap: wrap; gap: 1vmin; align-items: center; justify-content: center; padding: 1.4vmin; max-width: 50vmin; }
+  .paybox .coin { --cs: 0.4vmin; animation: popIn 0.3s ease-out; }
+  .paytotal { font-size: min(9vmin, 72px); font-weight: 800; color: #e2571e; min-width: 2.2em; text-align: center; }
+
+  /* time */
+  .clock { display: block; }
+  .prompt .clock { width: min(42vmin, 340px); height: min(42vmin, 340px); }
+  .tile.clockpick { width: min(27vw, 30vh); height: min(27vw, 30vh); }
+  .tile.clockpick .clock { width: 88%; height: 88%; }
+  .daynight { display: flex; flex-direction: column; align-items: center; gap: 1vmin; }
+  .daynight .em { font-size: min(18vmin, 140px); line-height: 1; }
+  .daynight .tx { font-size: min(6.6vmin, 54px); font-weight: 600; }
+
   /* grown-up panel */
   #settings { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(20, 30, 60, 0.82); z-index: 50; color: #f2f5ff; }
   #settings.open { display: flex; }
@@ -179,18 +215,7 @@
     <div class="starCount"><span>&#11088;</span><span id="starHome">0</span></div>
     <button id="gearBtn" class="roundBtn smallBtn" type="button" aria-label="Grown-ups">&#9881;&#65039;</button>
   </div>
-  <div id="worlds">
-    <button class="world read" id="goRead" type="button" aria-label="Reading">
-      <div class="big">&#128214;</div>
-      <div class="deco">ABC</div>
-      <div class="lvl" id="lvlRead"></div>
-    </button>
-    <button class="world math" id="goMath" type="button" aria-label="Numbers">
-      <div class="big">&#127822;</div>
-      <div class="deco">123</div>
-      <div class="lvl" id="lvlMath"></div>
-    </button>
-  </div>
+  <div id="worlds"></div>
 </section>
 
 <section id="play" class="screen">
@@ -212,14 +237,7 @@
 <div id="settings">
   <div class="panel">
     <h2>Grown-ups <small id="ver"></small></h2>
-    <div class="box">
-      <div class="row"><b>Reading</b><span class="muted" id="readStats"></span></div>
-      <div class="row"><button class="pm" id="readDown" type="button">&minus;</button><span id="readName" style="text-align:center;flex:1"></span><button class="pm" id="readUp" type="button">+</button></div>
-    </div>
-    <div class="box">
-      <div class="row"><b>Numbers</b><span class="muted" id="mathStats"></span></div>
-      <div class="row"><button class="pm" id="mathDown" type="button">&minus;</button><span id="mathName" style="text-align:center;flex:1"></span><button class="pm" id="mathUp" type="button">+</button></div>
-    </div>
+    <div id="levelBoxes" style="display:flex;flex-direction:column;gap:12px"></div>
     <div class="box">
       <div class="row"><span>Voice speed</span><span><button id="rateSlow" type="button">Slower</button> <button id="rateNorm" type="button">Normal</button></span></div>
       <div class="row"><span>Voice</span><button id="testVoice" type="button">Test the voice</button></div>
@@ -236,7 +254,7 @@
 (function () {
 'use strict';
 
-var VERSION = '0.1.0';
+var VERSION = '0.2.0';
 var SAVE_KEY = 'wordnumberland-v1';
 
 /* ================= helpers ================= */
@@ -254,15 +272,26 @@ function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 function repeat(s, n) { var o = ''; for (var i = 0; i < n; i++) o += s; return o; }
 function restart(node, cls) { node.classList.remove(cls); void node.offsetWidth; node.classList.add(cls); }
 
+/* ================= worlds ================= */
+var WORLDS = [
+  { k: 'read', label: 'Reading', icon: '\u{1F4D6}', deco: 'ABC', start: 5, grad: 'linear-gradient(160deg,#9d8bff,#7b61ff)', bg: 'linear-gradient(180deg,#e8e2ff,#fff6e0)',
+    cheer: ['Level up! You are a super reader!', 'Wow! Level up! Amazing reading!'] },
+  { k: 'math', label: 'Numbers', icon: '\u{1F34E}', deco: '123', start: 1, grad: 'linear-gradient(160deg,#ffc15e,#ff9f1c)', bg: 'linear-gradient(180deg,#ffe9c7,#e3f7ff)',
+    cheer: ['Level up! You are a number star!', 'Wow! Level up! The monster is so happy!'] },
+  { k: 'spell', label: 'Spelling', icon: '✏️', deco: 'a b c', start: 1, grad: 'linear-gradient(160deg,#5fe0c0,#1fae8c)', bg: 'linear-gradient(180deg,#d8fbef,#fff6e0)',
+    cheer: ['Level up! You are a super speller!', 'Wow! Level up! Great spelling!'] },
+  { k: 'money', label: 'Money', icon: '\u{1FA99}', deco: '1¢ 5¢', start: 1, grad: 'linear-gradient(160deg,#ffd95a,#e0a800)', bg: 'linear-gradient(180deg,#fff3c4,#e9f9e9)',
+    cheer: ['Level up! You are a money master!', 'Wow! Level up! Cha-ching!'] },
+  { k: 'time', label: 'Time', icon: '\u{1F550}', deco: '3:00', start: 1, grad: 'linear-gradient(160deg,#7fd8ff,#3a86ff)', bg: 'linear-gradient(180deg,#dcefff,#fff6e0)',
+    cheer: ['Level up! You can tell the time!', 'Wow! Level up! Tick tock, great job!'] }
+];
+function worldOf(k) { for (var i = 0; i < WORLDS.length; i++) if (WORLDS[i].k === k) return WORLDS[i]; return WORLDS[0]; }
+
 /* ================= save ================= */
 function freshSave() {
-  return {
-    stars: 0, sound: true, rate: 0.9,
-    w: {
-      read: { level: 5, streak: 0, recent: [], right: 0, total: 0, best: 5 },
-      math: { level: 1, streak: 0, recent: [], right: 0, total: 0, best: 1 }
-    }
-  };
+  var w = {};
+  WORLDS.forEach(function (W) { w[W.k] = { level: W.start, streak: 0, recent: [], right: 0, total: 0, best: W.start }; });
+  return { stars: 0, sound: true, rate: 0.9, w: w };
 }
 function loadSave() {
   var d = freshSave();
@@ -272,7 +301,7 @@ function loadSave() {
       if (typeof s.stars === 'number') d.stars = s.stars;
       if (typeof s.sound === 'boolean') d.sound = s.sound;
       if (typeof s.rate === 'number') d.rate = s.rate;
-      ['read', 'math'].forEach(function (k) {
+      WORLDS.forEach(function (W) { var k = W.k;
         if (s.w && s.w[k]) for (var f in d.w[k]) if (s.w[k][f] !== undefined) d.w[k][f] = s.w[k][f];
       });
     }
@@ -676,7 +705,7 @@ function missingRound() {
 
 function buildRound() {
   var b = pickFresh('build', BUILD);
-  return { kind: 'build', words: b[0].split(' '), pic: b[1], hint: b[0], right: b[0] + ' ' + pick(PRAISE) };
+  return { kind: 'build', units: b[0].split(' '), unitClass: 'word sm', slotClass: '', pic: b[1], hint: b[0], right: b[0] + ' ' + pick(PRAISE) };
 }
 
 function storyRound(list, key) {
@@ -741,6 +770,207 @@ function takeRound() {
   };
 }
 
+/* --- spelling --- */
+var LETTERS = 'abcdefghijklmnopqrstuvwxyz'.split('');
+var SIGHT_SPELL = (function () {
+  var out = [];
+  SIGHT.forEach(function (g) { g.forEach(function (w) { if (w.length >= 3 && w.length <= 6 && out.indexOf(w) < 0) out.push(w); }); });
+  return out;
+})();
+function decoyLetters(word, n) {
+  return shuffle(LETTERS.filter(function (c) { return word.indexOf(c) < 0; })).slice(0, n);
+}
+function missingLetterRound() {
+  var t = pickFresh('sp1', WORDS1), w = t[0];
+  var vi = w.search(/[aeiou]/), v = w.charAt(vi);
+  var others = shuffle('aeiou'.split('').filter(function (c) { return c !== v; })).slice(0, 2);
+  var letters = w.split('').map(function (c, i) {
+    return i === vi ? '<span class="ch gap2" id="gap">&nbsp;</span>' : '<span class="ch">' + c + '</span>';
+  }).join('');
+  var html = '<div class="daynight"><div class="em">' + t[1] + '</div><div class="spellgap">' + letters + '</div></div>';
+  var choices = [{ html: v, ok: true }].concat(others.map(function (c) { return { html: c, ok: false }; }));
+  return {
+    kind: 'choice', prompt: html, promptClass: '', choices: choices, choiceClass: 'letter',
+    say: w, hint: w, right: w + '! ' + pick(PRAISE), sayRate: 0.85,
+    onRight: function () { var g = $('gap'); if (g) { g.textContent = v; g.style.borderBottomColor = 'transparent'; } }
+  };
+}
+function spellRound(list, key, extras) {
+  var t = pickFresh(key, list), w = t[0];
+  return { kind: 'build', units: w.split(''), unitClass: 'letter', slotClass: 'letter', extra: decoyLetters(w, extras), pic: t[1], say: w, hint: w, right: w + '! ' + pick(PRAISE), sayRate: 0.85 };
+}
+function sightSpellRound() {
+  var w = pickFresh('sp5', SIGHT_SPELL);
+  return { kind: 'build', units: w.split(''), unitClass: 'letter', slotClass: 'letter', extra: decoyLetters(w, 2), pic: '\u{1F442}', say: w, hint: w, right: w + '! ' + pick(PRAISE), sayRate: 0.85 };
+}
+
+/* --- money --- */
+var COINS = {
+  penny: { v: 1, p: 'pennies' }, nickel: { v: 5, p: 'nickels' },
+  dime: { v: 10, p: 'dimes' }, quarter: { v: 25, p: 'quarters' }
+};
+var TOYS = [['teddy bear', '\u{1F9F8}'], ['ball', '⚽'], ['toy car', '\u{1F697}'], ['kite', '\u{1FA81}'], ['robot', '\u{1F916}'], ['yo-yo', '\u{1FA80}'], ['drum', '\u{1F941}'], ['dinosaur', '\u{1F996}'], ['lollipop', '\u{1F36D}'], ['balloon', '\u{1F388}']];
+function coinHTML(t) { return '<span class="coin ' + t + '">' + COINS[t].v + '¢</span>'; }
+function cents(n) { return n + (n === 1 ? ' cent' : ' cents'); }
+function centChoices(ans, max) { return numChoices(ans, max).map(function (c) { c.html = c.html + '¢'; return c; }); }
+function findCoinRound() {
+  var types = ['penny', 'nickel', 'dime', 'quarter'];
+  var t = pickFresh('c1', types);
+  var others = shuffle(types.filter(function (x) { return x !== t; })).slice(0, 2);
+  var choices = [{ html: coinHTML(t), ok: true }].concat(others.map(function (x) { return { html: coinHTML(x), ok: false }; }));
+  return {
+    kind: 'choice', prompt: esc(t), promptClass: 'word', choices: choices, choiceClass: 'pic',
+    say: 'Find the ' + t + '.', hint: 'Find the ' + t + '.', right: 'That is a ' + t + '! It is worth ' + cents(COINS[t].v) + '.'
+  };
+}
+function pileRound(list, say) {
+  var total = 0, run = [], h = '<div class="coinpile">';
+  list.forEach(function (t) { total += COINS[t].v; run.push(total); h += coinHTML(t); });
+  h += '</div>';
+  var countUp = list.length > 1 && list.some(function (t) { return t !== 'penny'; }) ? run.join(', ') + '. ' : '';
+  return {
+    kind: 'choice', prompt: h, promptClass: '', choices: centChoices(total, total + 5), choiceClass: 'num',
+    say: say, hint: say, right: countUp + cents(total) + '!'
+  };
+}
+function countPenniesRound() {
+  var n = 2 + rnd(9), list = [];
+  for (var i = 0; i < n; i++) list.push('penny');
+  return pileRound(list, 'How many cents?');
+}
+function countMixRound() {
+  var nk = 1 + rnd(2), p = rnd(5), list = [];
+  if (nk === 1 && p === 0) p = 1;
+  for (var i = 0; i < nk; i++) list.push('nickel');
+  for (var j = 0; j < p; j++) list.push('penny');
+  return pileRound(list, 'How much money? Count the nickels by fives.');
+}
+function shopRound(types, lo, hi) {
+  var toy = pick(TOYS), price = lo + rnd(hi - lo + 1);
+  var line = 'The ' + toy[0] + ' costs ' + cents(price) + '. Pay ' + cents(price) + '.';
+  return { kind: 'shop', toy: toy, price: price, types: types, say: line, hint: line, right: 'You paid ' + cents(price) + '! Here is your ' + toy[0] + '!' };
+}
+function renderShop(r) {
+  promptEl.className = 'prompt';
+  promptEl.innerHTML = '<div class="shop"><div class="toy">' + r.toy[1] + '<div class="tag">' + r.price + '¢</div></div>' +
+    '<div class="paybox" id="paybox"></div><div class="paytotal" id="paytotal">0¢</div></div>';
+  choicesEl.className = 'choices';
+  choicesEl.innerHTML = '';
+  r.total = 0; r.wrongHere = 0; r.locked = false; r.trays = {};
+  r.types.forEach(function (t) {
+    var b = el('button', 'tile cointray', coinHTML(t));
+    b.type = 'button';
+    b.addEventListener('pointerdown', function (ev) { ev.preventDefault(); onShopTap(r, t, b); });
+    choicesEl.appendChild(b);
+    r.trays[t] = b;
+  });
+}
+function onShopTap(r, t, b) {
+  if (busy || r.done || round !== r || r.locked) return;
+  unlockAudio();
+  Object.keys(r.trays).forEach(function (k) { r.trays[k].classList.remove('hint'); });
+  var v = COINS[t].v;
+  var c = el('span', 'coin ' + t, v + '¢');
+  $('paybox').appendChild(c);
+  r.total += v;
+  $('paytotal').textContent = r.total + '¢';
+  sPop();
+  if (r.total === r.price) {
+    r.done = true;
+    sDing();
+    burstFrom($('paybox'), 40);
+    roundDone(r);
+  } else if (r.total > r.price) {
+    r.firstTry = false; r.locked = true; r.wrongHere++;
+    sBoing();
+    restart(c, 'shake');
+    say('Oops! Too much.');
+    setTimeout(function () {
+      if (c.parentNode) c.parentNode.removeChild(c);
+      r.total -= v;
+      var pt = $('paytotal'); if (pt) pt.textContent = r.total + '¢';
+      r.locked = false;
+      if (r.wrongHere >= 2) {
+        var need = r.price - r.total, best = null;
+        r.types.forEach(function (k) { if (COINS[k].v <= need && (!best || COINS[k].v > COINS[best].v)) best = k; });
+        if (best) r.trays[best].classList.add('hint');
+      }
+    }, 650);
+  } else {
+    say(String(r.total));
+  }
+}
+
+/* --- time --- */
+var DAYNIGHT = [
+  ['Eat breakfast', '\u{1F963}', 1], ['Go to sleep', '\u{1F634}', 0], ['Go to school', '\u{1F3EB}', 1], ['See the stars', '✨', 0],
+  ['Play at the park', '\u{1F6DD}', 1], ['The owl wakes up', '\u{1F989}', 0], ['Eat lunch', '\u{1F96A}', 1], ['The sun comes up', '\u{1F305}', 1],
+  ['See the moon', '\u{1F315}', 0], ['Swim at the beach', '\u{1F3D6}️', 1], ['Read a bedtime story', '\u{1F4D6}', 0], ['Watch fireworks', '\u{1F386}', 0],
+  ['Wake up', '⏰', 1], ['Put on pajamas', '\u{1F6CC}', 0]
+];
+function dayNightRound() {
+  var d = pickFresh('dn', DAYNIGHT), day = d[2] === 1;
+  var html = '<div class="daynight"><div class="em">' + d[1] + '</div><div class="tx">' + esc(d[0]) + '</div></div>';
+  return {
+    kind: 'choice', prompt: html, promptClass: '', fixedOrder: true, choiceClass: 'two',
+    choices: [{ html: '☀️', ok: day }, { html: '\u{1F319}', ok: !day }],
+    say: d[0] + '. Day, or night?', hint: d[0] + '. Day, or night?', right: day ? 'Yes! We do that in the day.' : 'Yes! That is at night.'
+  };
+}
+function clockSVG(h, m) {
+  var s = '<svg class="clock" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">';
+  s += '<circle cx="100" cy="100" r="94" fill="#fff" stroke="#1d2a44" stroke-width="8"/>';
+  for (var i = 1; i <= 12; i++) {
+    var a = i * Math.PI / 6;
+    s += '<text x="' + (100 + 72 * Math.sin(a)).toFixed(1) + '" y="' + (100 - 72 * Math.cos(a) + 8).toFixed(1) + '" font-size="23" font-weight="700" text-anchor="middle" fill="#1d2a44" font-family="Avenir Next, Arial, sans-serif">' + i + '</text>';
+  }
+  for (var k = 0; k < 60; k++) {
+    if (k % 5 === 0) continue;
+    var b = k * Math.PI / 30;
+    s += '<circle cx="' + (100 + 88 * Math.sin(b)).toFixed(1) + '" cy="' + (100 - 88 * Math.cos(b)).toFixed(1) + '" r="1.6" fill="#9aa6c2"/>';
+  }
+  var ha = ((h % 12) + m / 60) * 30, ma = m * 6;
+  s += '<line x1="100" y1="100" x2="100" y2="54" stroke="#e63946" stroke-width="11" stroke-linecap="round" transform="rotate(' + ha + ' 100 100)"/>';
+  s += '<line x1="100" y1="100" x2="100" y2="28" stroke="#3a86ff" stroke-width="6" stroke-linecap="round" transform="rotate(' + ma + ' 100 100)"/>';
+  s += '<circle cx="100" cy="100" r="8" fill="#1d2a44"/></svg>';
+  return s;
+}
+function timeText(h, m) { return h + ':' + (m < 10 ? '0' : '') + m; }
+function timeSay(h, m) {
+  if (m === 0) return h + " o'clock";
+  if (m === 30) return 'half past ' + h;
+  if (m === 15) return 'quarter past ' + h;
+  return 'quarter to ' + (h % 12 + 1);
+}
+function wrapHour(h) { return ((h - 1) % 12 + 12) % 12 + 1; }
+/* The right time plus two near misses: same hour with another minute, or a nearby hour. */
+function timeOptions(h, m, mins) {
+  var opts = [[h, m]];
+  function has(a, b) { return opts.some(function (o) { return o[0] === a && o[1] === b; }); }
+  var cands = [];
+  shuffle(mins.filter(function (x) { return x !== m; })).forEach(function (mm) { cands.push([h, mm]); });
+  shuffle([1, -1, 2, -2, 3]).forEach(function (d) { cands.push([wrapHour(h + d), m]); });
+  if (mins.length > 1) cands = [cands[0]].concat(shuffle(cands.slice(1)));
+  for (var i = 0; i < cands.length && opts.length < 3; i++) if (!has(cands[i][0], cands[i][1])) opts.push(cands[i]);
+  return opts;
+}
+function readClockRound(mins) {
+  var h = 1 + rnd(12), m = pick(mins);
+  var choices = timeOptions(h, m, mins).map(function (o, i) { return { html: timeText(o[0], o[1]), ok: i === 0 }; });
+  return {
+    kind: 'choice', prompt: clockSVG(h, m), promptClass: '', choices: choices, choiceClass: 'word',
+    say: 'What time is it?', hint: 'The short red hand shows the hour. The long blue hand shows the minutes.', right: 'It is ' + timeSay(h, m) + '!'
+  };
+}
+function findClockRound() {
+  var h = 1 + rnd(12);
+  var choices = timeOptions(h, 0, [0]).map(function (o, i) { return { html: clockSVG(o[0], o[1]), ok: i === 0 }; });
+  return {
+    kind: 'choice', prompt: esc(timeText(h, 0)), promptClass: 'word', choices: choices, choiceClass: 'clockpick',
+    say: 'Find ' + timeSay(h, 0) + '.', hint: 'Find ' + timeSay(h, 0) + '. Look at the short red hand.', right: 'Yes! ' + timeSay(h, 0) + '!'
+  };
+}
+
 /* ================= levels ================= */
 var LEVELS = {
   read: [
@@ -760,6 +990,27 @@ var LEVELS = {
     { name: 'Adding (to 10)', need: 4, intro: '', make: addRound },
     { name: 'Mystery box (2 + ? = 5)', need: 4, intro: 'What is in the box?', make: mysteryRound },
     { name: 'Take away', need: 4, intro: 'Take away!', make: takeRound }
+  ],
+  spell: [
+    { name: 'Missing letter (c_t)', need: 3, intro: 'Which letter is missing?', make: missingLetterRound },
+    { name: 'Spell short words (cat)', need: 4, intro: 'Spell the word.', make: function () { return spellRound(WORDS1, 'sp2', 1); } },
+    { name: 'Spell blends (frog)', need: 4, intro: 'Spell the word.', make: function () { return spellRound(WORDS2, 'sp3', 2); } },
+    { name: 'Spell long vowels (cake)', need: 4, intro: 'Spell the word.', make: function () { return spellRound(WORDS3, 'sp4', 2); } },
+    { name: 'Spell sight words (said)', need: 4, intro: 'Listen. Spell the word.', make: sightSpellRound }
+  ],
+  money: [
+    { name: 'Find the coin', need: 3, intro: '', make: findCoinRound },
+    { name: 'Count pennies', need: 4, intro: 'Count the pennies.', make: countPenniesRound },
+    { name: 'Nickels and pennies', need: 4, intro: '', make: countMixRound },
+    { name: 'Toy shop (pennies, nickels)', need: 4, intro: 'Welcome to the toy shop!', make: function () { return shopRound(['nickel', 'penny'], 3, 15); } },
+    { name: 'Toy shop (all coins)', need: 4, intro: 'Welcome to the big toy shop!', make: function () { return shopRound(['quarter', 'dime', 'nickel', 'penny'], 12, 45); } }
+  ],
+  time: [
+    { name: 'Day or night', need: 3, intro: '', make: dayNightRound },
+    { name: "Read the clock (o'clock)", need: 4, intro: '', make: function () { return readClockRound([0]); } },
+    { name: "Find the clock (o'clock)", need: 4, intro: '', make: findClockRound },
+    { name: 'Half past', need: 4, intro: '', make: function () { return readClockRound([0, 30]); } },
+    { name: 'Quarter past and to', need: 4, intro: '', make: function () { return readClockRound([0, 15, 30, 45]); } }
   ]
 };
 
@@ -769,12 +1020,22 @@ var speakerEl = $('speaker'), dotsEl = $('dots'), monsterEl = $('monster'), part
 var world = null, round = null, busy = false, introPending = false, hintTimer = null;
 var HAS_HUB = location.pathname !== '/' && location.pathname !== '/index.html' && /^https?:$/.test(location.protocol) && location.hostname !== 'localhost' && !/^\d+\.\d+\.\d+\.\d+$/.test(location.hostname);
 
+var worldsEl = $('worlds');
+WORLDS.forEach(function (W, i) {
+  var b = el('button', 'world', '<div class="big">' + W.icon + '</div><div class="deco">' + W.deco + '</div><div class="lvl" id="lvl-' + W.k + '"></div>');
+  b.type = 'button';
+  b.setAttribute('aria-label', W.label);
+  b.style.background = W.grad;
+  b.style.animationDelay = (-i * 0.6) + 's';
+  b.addEventListener('click', function (ev) { ev.preventDefault(); unlockAudio(); sPop(); enterWorld(W.k); });
+  worldsEl.appendChild(b);
+});
 function renderHome() {
   $('starHome').textContent = save.stars;
-  ['read', 'math'].forEach(function (k) {
-    var n = LEVELS[k].length, lv = save.w[k].level, h = '';
+  WORLDS.forEach(function (W) {
+    var n = LEVELS[W.k].length, lv = save.w[W.k].level, h = '';
     for (var i = 1; i <= n; i++) h += i <= lv ? '⭐' : '<span style="opacity:.35">⭐</span>';
-    $(k === 'read' ? 'lvlRead' : 'lvlMath').innerHTML = h;
+    $('lvl-' + W.k).innerHTML = h;
   });
 }
 function showHome() {
@@ -786,7 +1047,7 @@ function enterWorld(w) {
   world = w; busy = false; introPending = true;
   homeEl.classList.remove('on'); playEl.classList.add('on');
   monsterEl.classList.toggle('on', w === 'math');
-  document.body.style.background = w === 'read' ? 'linear-gradient(180deg,#e8e2ff,#fff6e0)' : 'linear-gradient(180deg,#ffe9c7,#e3f7ff)';
+  document.body.style.background = worldOf(w).bg;
   nextRound();
 }
 
@@ -805,7 +1066,9 @@ function nextRound() {
   var r = lv.make();
   r.firstTry = true; r.wrong = 0; r.done = false;
   round = r;
-  if (r.kind === 'build') renderBuild(r); else renderChoice(r);
+  if (r.kind === 'build') renderBuild(r);
+  else if (r.kind === 'shop') renderShop(r);
+  else renderChoice(r);
   restart(stageEl, 'enter');
   renderDots();
   var parts = [];
@@ -820,7 +1083,7 @@ function nextRound() {
   } else if (autoSay) {
     setTimeout(function () { if (round === r) say(autoSay, null, r.sayRate); }, 300);
   }
-  if (world === 'read' && !r.say) {
+  if (!r.say && r.hint) {
     hintTimer = setTimeout(function () { if (round === r && !r.done) speakerEl.classList.add('wiggle'); }, parts.length ? 7000 : 5000);
   }
 }
@@ -877,11 +1140,12 @@ function renderBuild(r) {
   promptEl.className = 'prompt build';
   promptEl.innerHTML = '<div class="bpic">' + r.pic + '</div><div class="slots"></div>';
   var slots = promptEl.querySelector('.slots');
-  r.slotEls = r.words.map(function () { var s = el('span', 'slot', '&nbsp;'); slots.appendChild(s); return s; });
+  r.slotEls = r.units.map(function () { var s = el('span', 'slot ' + (r.slotClass || ''), '&nbsp;'); slots.appendChild(s); return s; });
   r.pos = 0; r.wrongHere = 0;
   choicesEl.className = 'choices';
   choicesEl.innerHTML = '';
-  var order = r.words.map(function (w, i) { return i; });
+  var pool = r.units.concat(r.extra || []);
+  var order = pool.map(function (w, i) { return i; });
   for (var tries = 0; tries < 10; tries++) {
     order = shuffle(order);
     var same = order.every(function (v, i) { return v === i; });
@@ -889,8 +1153,8 @@ function renderBuild(r) {
   }
   r.tiles = [];
   order.forEach(function (i) {
-    var w = r.words[i];
-    var b = el('button', 'tile word sm', esc(w));
+    var w = pool[i];
+    var b = el('button', 'tile ' + (r.unitClass || 'word sm'), esc(w));
     b.type = 'button';
     b.addEventListener('pointerdown', function (ev) { ev.preventDefault(); onBuildTap(r, w, b); });
     choicesEl.appendChild(b);
@@ -900,14 +1164,14 @@ function renderBuild(r) {
 function onBuildTap(r, w, b) {
   if (busy || r.done || round !== r || b.classList.contains('used')) return;
   unlockAudio();
-  if (w === r.words[r.pos]) {
+  if (w === r.units[r.pos]) {
     sPop();
     var s = r.slotEls[r.pos];
     s.textContent = w; s.classList.add('filled');
     b.classList.add('used');
     r.tiles.forEach(function (t) { t.classList.remove('hint'); });
     r.pos++; r.wrongHere = 0;
-    if (r.pos >= r.words.length) {
+    if (r.pos >= r.units.length) {
       r.done = true;
       sDing();
       burstFrom(promptEl, 40);
@@ -918,7 +1182,7 @@ function onBuildTap(r, w, b) {
     sBoing();
     restart(b, 'shake');
     if (r.wrongHere >= 2) {
-      var want = r.words[r.pos];
+      var want = r.units[r.pos];
       for (var i = 0; i < r.tiles.length; i++) {
         var t = r.tiles[i];
         if (!t.classList.contains('used') && t.textContent === want) { t.classList.add('hint'); break; }
@@ -982,7 +1246,7 @@ function celebrate(cb) {
   sFanfare();
   rain(140);
   burst(window.innerWidth / 2, window.innerHeight / 2, 60, 14);
-  var line = world === 'read' ? pick(['Level up! You are a super reader!', 'Wow! Level up! Amazing reading!']) : pick(['Level up! You are a number star!', 'Wow! Level up! The monster is so happy!']);
+  var line = pick(worldOf(world).cheer);
   var r = round;
   say(line, function () {
     setTimeout(function () { partyEl.classList.remove('on'); if (round === r) cb(); }, 500);
@@ -993,8 +1257,6 @@ function celebrate(cb) {
 function tapBtn(node, fn) {
   node.addEventListener('click', function (ev) { ev.preventDefault(); unlockAudio(); fn(ev); });
 }
-tapBtn($('goRead'), function () { sPop(); enterWorld('read'); });
-tapBtn($('goMath'), function () { sPop(); enterWorld('math'); });
 tapBtn($('backBtn'), function () { sTap(); showHome(); });
 tapBtn(speakerEl, function () {
   if (!round) return;
@@ -1015,10 +1277,17 @@ document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
 var settingsEl = $('settings');
 function renderSettings() {
   $('ver').textContent = 'v' + VERSION;
-  ['read', 'math'].forEach(function (k) {
-    var ws = save.w[k], L = LEVELS[k];
-    $(k + 'Name').textContent = 'Level ' + ws.level + ' of ' + L.length + ': ' + L[ws.level - 1].name;
-    $(k + 'Stats').textContent = ws.right + ' first-try right of ' + ws.total;
+  var box = $('levelBoxes');
+  box.innerHTML = '';
+  WORLDS.forEach(function (W) {
+    var ws = save.w[W.k], L = LEVELS[W.k];
+    var d = el('div', 'box',
+      '<div class="row"><b>' + W.icon + ' ' + W.label + '</b><span class="muted">' + ws.right + ' first-try right of ' + ws.total + '</span></div>' +
+      '<div class="row"><button class="pm" type="button">&minus;</button><span style="text-align:center;flex:1">Level ' + ws.level + ' of ' + L.length + ': ' + esc(L[ws.level - 1].name) + '</span><button class="pm" type="button">+</button></div>');
+    var pm = d.querySelectorAll('.pm');
+    tapBtn(pm[0], function () { setLevel(W.k, -1); });
+    tapBtn(pm[1], function () { setLevel(W.k, 1); });
+    box.appendChild(d);
   });
   $('rateSlow').classList.toggle('sel', save.rate < 0.85);
   $('rateNorm').classList.toggle('sel', save.rate >= 0.85);
@@ -1034,10 +1303,6 @@ function setLevel(k, d) {
 }
 tapBtn($('gearBtn'), function () { renderSettings(); settingsEl.classList.add('open'); });
 tapBtn($('btnClose'), function () { settingsEl.classList.remove('open'); renderHome(); });
-tapBtn($('readDown'), function () { setLevel('read', -1); });
-tapBtn($('readUp'), function () { setLevel('read', 1); });
-tapBtn($('mathDown'), function () { setLevel('math', -1); });
-tapBtn($('mathUp'), function () { setLevel('math', 1); });
 tapBtn($('rateSlow'), function () { save.rate = 0.75; persist(); renderSettings(); say('This is the slower voice.'); });
 tapBtn($('rateNorm'), function () { save.rate = 0.9; persist(); renderSettings(); say('This is the normal voice.'); });
 tapBtn($('testVoice'), function () { say('The cat is on the bed.'); });
@@ -1080,7 +1345,7 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
 }
 
 /* Test hook for automated checks (harmless in play). */
-window.__wnl = { save: function () { return save; }, round: function () { return round; }, levels: LEVELS, enter: enterWorld, home: showHome };
+window.__wnl = { save: function () { return save; }, round: function () { return round; }, levels: LEVELS, enter: enterWorld, home: showHome, worlds: WORLDS };
 })();
 </script>
 </body>
