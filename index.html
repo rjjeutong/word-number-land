@@ -65,6 +65,10 @@
   #dots { display: flex; gap: 1.6vmin; }
   .dot { width: 4.4vmin; height: 4.4vmin; max-width: 34px; max-height: 34px; border-radius: 50%; background: rgba(255,255,255,0.75); box-shadow: inset 0 0 0 0.5vmin rgba(0,0,0,0.12); transition: background 0.3s, transform 0.3s; }
   .dot.full { background: #ffd23f; transform: scale(1.15); box-shadow: inset 0 0 0 0.5vmin rgba(0,0,0,0.08), 0 0 2vmin rgba(255,210,63,0.9); }
+  .bar { width: min(42vw, 380px); height: 3.4vmin; max-height: 26px; background: rgba(255,255,255,0.8); border-radius: 99px; overflow: hidden; box-shadow: inset 0 0 0 0.5vmin rgba(0,0,0,0.08); }
+  .bar > div { height: 100%; background: linear-gradient(90deg, #ffd23f, #ffb703); border-radius: 99px; transition: width 0.5s ease-out; }
+  .barstar { font-size: min(5vmin, 38px); margin-left: 1vmin; }
+  #dots { align-items: center; }
   #speaker.wiggle { animation: wiggle 1.2s ease-in-out infinite; background: #fff3b0; }
   #stage { flex: 1 1 auto; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; padding: 0 3vmin 3vmin; position: relative; min-height: 0; }
   #stage.enter #prompt, #stage.enter #choices { animation: slideIn 0.35s ease-out both; }
@@ -123,12 +127,28 @@
   .term .n.q.filled { background: var(--good); animation: popIn 0.4s ease-out; }
   .op { font-size: min(12vmin, 100px); font-weight: 800; line-height: 1.15; color: #8a94ad; }
   .mini { display: grid; grid-template-columns: repeat(5, auto); gap: 0.4vmin; font-size: min(4.6vmin, 38px); line-height: 1.1; min-height: 1em; }
-  .mini .gone { opacity: 0.25; position: relative; }
-  .mini .gone::after { content: "\2716"; position: absolute; left: 0; right: 0; top: 0; text-align: center; color: #e74c3c; opacity: 1; }
   .feed { display: flex; align-items: center; gap: 4vmin; font-size: min(12vmin, 100px); }
-  .apples { display: grid; grid-template-columns: repeat(3, auto); gap: 1vmin; }
-  .apple { display: inline-block; font-size: min(11vmin, 92px); line-height: 1; transition: transform 0.2s; }
-  .apple.counted { transform: scale(1.18); filter: drop-shadow(0 0 1.4vmin #ffd23f); }
+  .apples { display: grid; grid-template-columns: repeat(3, auto); gap: 1.4vmin; }
+  .apples.five { grid-template-columns: repeat(5, auto); }
+  .ap { display: inline-block; position: relative; line-height: 1; transition: transform 0.2s, opacity 0.3s; }
+  .apples .ap { font-size: min(11vmin, 92px); }
+  .ap.counted { transform: scale(1.18); filter: drop-shadow(0 0 1.2vmin #ffd23f); }
+  .ap.counted::after { content: attr(data-n); position: absolute; right: -0.25em; top: -0.35em; font-size: 0.42em; font-weight: 800; color: var(--ink); background: #ffd23f; border-radius: 99px; padding: 0 0.3em; line-height: 1.3; font-family: var(--font); }
+  .ap.hid { display: none; }
+  .ap.gone { opacity: 0.25; }
+  .ap.gone::before { content: "\2716"; position: absolute; left: 0; right: 0; top: 0; text-align: center; color: #e74c3c; }
+  .stack { display: flex; flex-direction: column; align-items: center; gap: 2vmin; }
+  .eqline { font-size: min(10vmin, 84px); font-weight: 800; display: flex; align-items: center; gap: 0.3em; }
+  .eqline .n.q { color: #fff; background: #b9c3da; border-radius: 2vmin; padding: 0 0.25em; }
+  .eqline .n.q.filled { background: var(--good); }
+  #bulb.glow { background: #fff3b0; animation: wiggle 1.2s ease-in-out infinite; }
+  .tile.ans { font-size: min(4.8vmin, 38px); font-weight: 700; padding: 2vmin 3.4vmin; max-width: 44vw; line-height: 1.25; }
+  .prompt.story.long { font-size: min(4.2vmin, 36px); }
+  .prompt.story.long p { margin: 0.2em 0; }
+  .slots.col { flex-direction: column; align-items: stretch; counter-reset: s; width: min(80vw, 900px); }
+  .slot.sent { justify-content: flex-start; height: auto; min-height: 8vmin; font-size: min(4.6vmin, 38px); padding: 1vmin 2vmin; text-align: left; }
+  .slot.sent::before { counter-increment: s; content: counter(s) "."; margin-right: 0.6em; color: #9aa6c2; }
+  .tile.sent { font-size: min(4.4vmin, 36px); font-weight: 700; padding: 2vmin 3vmin; max-width: 44vw; line-height: 1.25; }
   .plus { color: #8a94ad; font-weight: 800; }
 
   /* the monster */
@@ -222,7 +242,7 @@
   <div id="topbar">
     <button id="backBtn" class="roundBtn" type="button" aria-label="Back">&#127968;</button>
     <div id="dots"></div>
-    <button id="speaker" class="roundBtn" type="button" aria-label="Hear it">&#128264;</button>
+    <div style="display:flex;gap:2vmin"><button id="bulb" class="roundBtn" type="button" aria-label="Show me" style="display:none">&#128161;</button><button id="speaker" class="roundBtn" type="button" aria-label="Hear it">&#128264;</button></div>
   </div>
   <div id="stage">
     <div id="prompt" class="prompt"></div>
@@ -254,7 +274,7 @@
 (function () {
 'use strict';
 
-var VERSION = '0.2.0';
+var VERSION = '0.3.0';
 var SAVE_KEY = 'wordnumberland-v1';
 
 /* ================= helpers ================= */
@@ -290,8 +310,8 @@ function worldOf(k) { for (var i = 0; i < WORLDS.length; i++) if (WORLDS[i].k ==
 /* ================= save ================= */
 function freshSave() {
   var w = {};
-  WORLDS.forEach(function (W) { w[W.k] = { level: W.start, streak: 0, recent: [], right: 0, total: 0, best: W.start }; });
-  return { stars: 0, sound: true, rate: 0.9, w: w };
+  WORLDS.forEach(function (W) { w[W.k] = { level: W.start, streak: 0, recent: [], right: 0, total: 0, best: W.start, teach: W.k === 'math' ? 2 : 0, lvRight: 0 }; });
+  return { stars: 0, sound: true, rate: 0.9, w: w, mathV: 3 };
 }
 function loadSave() {
   var d = freshSave();
@@ -301,6 +321,7 @@ function loadSave() {
       if (typeof s.stars === 'number') d.stars = s.stars;
       if (typeof s.sound === 'boolean') d.sound = s.sound;
       if (typeof s.rate === 'number') d.rate = s.rate;
+      d.mathV = s.mathV || 1;
       WORLDS.forEach(function (W) { var k = W.k;
         if (s.w && s.w[k]) for (var f in d.w[k]) if (s.w[k][f] !== undefined) d.w[k][f] = s.w[k][f];
       });
@@ -309,6 +330,11 @@ function loadSave() {
   return d;
 }
 var save = loadSave();
+/* v0.3.0 rebuilt Numbers (adding with pictures first, with teaching); restart him there once. */
+if ((save.mathV || 1) < 3) {
+  save.w.math = { level: 1, streak: 0, recent: [], right: 0, total: 0, best: 1, teach: 2, lvRight: 0 };
+  save.mathV = 3;
+}
 function persist() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {} }
 
 /* ================= sound ================= */
@@ -584,6 +610,284 @@ var STORIES = [
   ['Max went to the zoo with his class. He saw a tall giraffe. He saw a big elephant. The monkeys made him laugh.', 'What made Max laugh?', '\u{1F412}', '\u{1F992}', '\u{1F418}']
 ];
 
+
+/* ===== harder reading (v0.3.0): feelings, story order, long stories with written answers ===== */
+/* [text, question, right, wrong1, wrong2] - the feeling is never named in the text. */
+var FEEL = [
+  ['Sam dropped his ice cream. It fell on the ground.', 'How does Sam feel?', '\u{1F622}', '\u{1F600}', '\u{1F634}'],
+  ['Mia got a new puppy for her birthday.', 'How does Mia feel?', '\u{1F600}', '\u{1F622}', '\u{1F621}'],
+  ['Ben ran and played all day. Now his eyes keep closing.', 'How does Ben feel?', '\u{1F634}', '\u{1F621}', '\u{1F632}'],
+  ['A big dog barked at Lily. She hid behind her mom.', 'How does Lily feel?', '\u{1F628}', '\u{1F600}', '\u{1F634}'],
+  ["Tom's brother took his toy and would not give it back.", 'How does Tom feel?', '\u{1F621}', '\u{1F600}', '\u{1F634}'],
+  ['Zoe opened the box. A frog jumped out! She did not know it was in there.', 'How does Zoe feel?', '\u{1F632}', '\u{1F622}', '\u{1F634}'],
+  ['Max lost his teddy bear. He looked everywhere, but he could not find it.', 'How does Max feel?', '\u{1F622}', '\u{1F600}', '\u{1F632}'],
+  ['Ana won the race! Everyone cheered for her.', 'How does Ana feel?', '\u{1F600}', '\u{1F622}', '\u{1F628}'],
+  ['The lights went out in the storm. Jack heard a loud bang.', 'How does Jack feel?', '\u{1F628}', '\u{1F600}', '\u{1F634}'],
+  ['Grandpa came to visit. Lucy ran to give him a big hug.', 'How does Lucy feel?', '\u{1F600}', '\u{1F621}', '\u{1F634}'],
+  ['Leo built a tall tower. His sister knocked it down on purpose.', 'How does Leo feel?', '\u{1F621}', '\u{1F600}', '\u{1F634}'],
+  ['It was very late. Emma yawned and rubbed her eyes.', 'How does Emma feel?', '\u{1F634}', '\u{1F621}', '\u{1F632}'],
+  ["Kim's goldfish got sick. Now it does not swim any more.", 'How does Kim feel?', '\u{1F622}', '\u{1F600}', '\u{1F621}'],
+  ['Dad said we are going to the beach today! Noah jumped up and down.', 'How does Noah feel?', '\u{1F600}', '\u{1F622}', '\u{1F634}'],
+  ['Ella waited and waited for her turn on the swing. A big kid pushed in front of her.', 'How does Ella feel?', '\u{1F621}', '\u{1F600}', '\u{1F634}'],
+  ['Owen heard a scratch at the window in the dark. He pulled the blanket over his head.', 'How does Owen feel?', '\u{1F628}', '\u{1F600}', '\u{1F621}']
+];
+
+/* Three sentences of a little story, to put in order. */
+var ORDER = [
+  ['Max got a seed.', 'He planted it in the dirt.', 'A big flower grew.'],
+  ['Mia put on her shoes.', 'She went outside.', 'She played in the park.'],
+  ['Dad mixed the cake.', 'He put it in the oven.', 'We ate the cake.'],
+  ['The egg cracked.', 'A little chick came out.', 'The chick grew into a hen.'],
+  ['Ben got in the bath.', 'He washed with soap.', 'He dried off with a towel.'],
+  ['It started to rain.', 'Lily opened her umbrella.', 'The sun came out again.'],
+  ['Sam woke up.', 'He ate his breakfast.', 'He got on the bus to school.'],
+  ['The dog saw a ball.', 'It ran to get the ball.', 'It brought the ball back.'],
+  ['We went to the shop.', 'We got some milk.', 'We paid and went home.'],
+  ['Zoe got a big box.', 'She cut a door in it.', 'Now it is a house for her cat.'],
+  ['Snow fell all night.', 'Jack made a snowman.', 'The sun came out and it melted.'],
+  ['Mom filled the cup.', 'Tom drank the milk.', 'The cup was empty.'],
+  ['The frog sat on a log.', 'It saw a fly.', 'It ate the fly.'],
+  ['Kim got paper and paint.', 'She painted a red house.', 'She gave the picture to her grandma.'],
+  ['The bird made a nest.', 'She laid three eggs.', 'Three baby birds hatched.'],
+  ['Leo got his toothbrush.', 'He put on the toothpaste.', 'He brushed his teeth.']
+];
+
+/* Longer stories. Each has several questions with written answers: [question, right, wrong1, wrong2]. */
+var LONG = [
+  { t: "Rosa heard a small cry under the porch. She looked down and saw a tiny gray kitten. The kitten was wet and cold. Rosa wrapped it in a soft towel. Her mom gave the kitten some warm milk. Soon the kitten was purring on Rosa's lap.",
+    q: [['Where was the kitten?', 'under the porch', 'up in a tree', 'in the car'],
+        ['What color was the kitten?', 'gray', 'orange', 'black'],
+        ['What did Mom give the kitten?', 'warm milk', 'a ball', 'a fish'],
+        ['How did the kitten feel at the end?', 'happy and warm', 'wet and cold', 'scared']] },
+  { t: 'Owen wanted a tree house. He asked his dad to help. They got wood, nails and a hammer. It took them three days. On the last day they painted it blue. Now Owen reads books up in his tree house.',
+    q: [['Who helped Owen?', 'his dad', 'his sister', 'his teacher'],
+        ['How long did it take?', 'three days', 'one day', 'ten days'],
+        ['What color is the tree house?', 'blue', 'red', 'green'],
+        ['What does Owen do in the tree house?', 'reads books', 'takes a bath', 'cooks dinner']] },
+  { t: 'It was the first day of school. Nia felt nervous. She did not know anyone in her class. At lunch, a girl named Ruby sat next to her. Ruby shared her apple. By the end of the day, Nia and Ruby were best friends.',
+    q: [['How did Nia feel at first?', 'nervous', 'happy', 'sleepy'],
+        ['Who sat next to Nia?', 'Ruby', 'her mom', 'the teacher'],
+        ['What did Ruby share?', 'her apple', 'her pencil', 'her hat'],
+        ['What happened at the end of the day?', 'They were best friends.', 'Nia went home sad.', 'Ruby moved away.']] },
+  { t: 'Grandpa took Leo fishing at the lake. They sat in a little boat. Leo waited and waited. Then his line pulled hard! He reeled in a big fish. Grandpa took a picture, and then they let the fish go.',
+    q: [['Where did they go fishing?', 'at the lake', 'at the sea', 'in the bath'],
+        ['Who took Leo fishing?', 'Grandpa', 'Mom', 'a friend'],
+        ['What happened to the fish?', 'They let it go.', 'They ate it.', 'It jumped in the boat.'],
+        ['Why did Grandpa take a picture?', 'Leo caught a big fish.', 'It was raining.', 'The boat was new.']] },
+  { t: 'The class planted beans in cups. Every day they gave them a little water. They put the cups by the sunny window. After one week, small green shoots came up. After two weeks, the plants were taller than the cups!',
+    q: [['What did the class plant?', 'beans', 'apples', 'trees'],
+        ['Where did they put the cups?', 'by the sunny window', 'in a dark closet', 'under the desk'],
+        ['What did they give the plants every day?', 'a little water', 'some milk', 'a cookie'],
+        ['When were the plants taller than the cups?', 'after two weeks', 'after one day', 'after a year']] },
+  { t: 'A big storm came in the night. The wind was loud and the rain was hard. In the morning, Mateo looked outside. A tree branch had fallen in the yard. Mateo and his mom picked up the sticks together. Then they had hot cocoa.',
+    q: [['When did the storm come?', 'in the night', 'at lunch', 'after school'],
+        ['What fell in the yard?', 'a tree branch', 'a bird nest', 'the fence'],
+        ['Who helped Mateo pick up sticks?', 'his mom', 'his dog', 'his teacher'],
+        ['What did they drink after?', 'hot cocoa', 'orange juice', 'lemonade']] },
+  { t: 'Bella the dog loved to dig. One day she dug a big hole in the garden. In the hole she found an old red ball. She carried it to her boy, Sam. Sam threw the ball, and Bella ran to get it. It was her new favorite toy.',
+    q: [['What did Bella love to do?', 'dig', 'swim', 'sing'],
+        ['What did Bella find?', 'an old red ball', 'a bone', 'a shoe'],
+        ['Who is Sam?', 'her boy', 'her doctor', 'a cat'],
+        ["What is Bella's new favorite toy?", 'the red ball', 'a stick', 'a sock']] },
+  { t: 'Ava and her dad made pancakes. First they mixed flour, eggs and milk. Then Dad poured the batter in a hot pan. Ava flipped the pancakes with a big spoon. They put berries on top. It was the best breakfast ever.',
+    q: [['What did they make?', 'pancakes', 'soup', 'pizza'],
+        ['What did they mix first?', 'flour, eggs and milk', 'rice and beans', 'sugar and salt'],
+        ['Who flipped the pancakes?', 'Ava', 'Dad', 'Grandma'],
+        ['What went on top?', 'berries', 'cheese', 'ketchup']] },
+  { t: 'Kai wanted to ride his bike with no training wheels. He fell down the first time. He fell down the second time too. But Kai did not give up. On the third try, he rode all the way down the street! Everyone clapped.',
+    q: [['What did Kai want to do?', 'ride with no training wheels', 'swim in the pool', 'climb a tree'],
+        ['How many times did Kai fall?', 'two times', 'one time', 'five times'],
+        ['What happened on the third try?', 'He rode down the street.', 'He fell again.', 'He went home.'],
+        ['Why did everyone clap?', 'Kai did it!', 'It was raining.', 'Kai fell down.']] },
+  { t: 'The zoo got a new baby elephant. Her name was Pearl. Pearl was small, but she was very strong. She liked to spray water with her trunk. Kids came from all over town to see her. Pearl splashed them, and they laughed.',
+    q: [['What is Pearl?', 'a baby elephant', 'a fish', 'a girl'],
+        ['What did Pearl like to do?', 'spray water with her trunk', 'climb trees', 'sleep all day'],
+        ['Why did kids come to the zoo?', 'to see Pearl', 'to buy shoes', 'to go to school'],
+        ['What did the kids do when Pearl splashed them?', 'They laughed.', 'They cried.', 'They went to bed.']] },
+  { t: "Mr. Green's class went on a trip to a farm. They saw cows, pigs and goats. A farmer showed them how to milk a cow. Then they picked apples from the trees. On the bus ride home, everyone ate an apple.",
+    q: [['Where did the class go?', 'to a farm', 'to the beach', 'to the moon'],
+        ['What did the farmer show them?', 'how to milk a cow', 'how to drive a bus', 'how to swim'],
+        ['What did they pick?', 'apples', 'flowers', 'pumpkins'],
+        ['When did they eat the apples?', 'on the bus ride home', 'at breakfast', 'in the barn']] },
+  { t: 'Lucy lost her first tooth at lunch. She put it under her pillow that night. She tried to stay awake, but she fell asleep. In the morning, the tooth was gone. In its place was a shiny coin!',
+    q: [['When did Lucy lose her tooth?', 'at lunch', 'at bedtime', 'at the park'],
+        ['Where did she put the tooth?', 'under her pillow', 'in a cup', 'in her shoe'],
+        ['What did she find in the morning?', 'a shiny coin', 'her tooth', 'a toy car'],
+        ['Did Lucy stay awake?', 'No, she fell asleep.', 'Yes, all night.', 'She went outside.']] },
+  { t: 'A baby bird fell out of its nest. Marco saw it on the grass. He did not touch it. He told his mom, and she called an animal helper. The helper put the bird back in its nest. Then the mother bird came back to feed it.',
+    q: [['Where did Marco see the bird?', 'on the grass', 'in the pool', 'on the roof'],
+        ['Who did Marco tell?', 'his mom', 'his friend', 'the bird'],
+        ['What did the helper do?', 'put the bird back in its nest', 'took the bird home', 'gave it a bath'],
+        ['Who came back to feed the baby bird?', 'the mother bird', 'Marco', 'a cat']] },
+  { t: 'It was a hot day, so Maya and Eli made lemonade. They set up a table by the sidewalk. Each cup cost 25 cents. Lots of people stopped to buy a cup. At the end of the day they had five dollars. They used it to buy food for the animal shelter.',
+    q: [['Why did they make lemonade?', 'It was a hot day.', 'It was snowing.', 'They were sick.'],
+        ['How much was one cup?', '25 cents', '5 dollars', '1 cent'],
+        ['What did they buy with the money?', 'food for the animal shelter', 'a new bike', 'candy'],
+        ['Where was the table?', 'by the sidewalk', 'in the kitchen', 'at school']] }
+];
+
+
+/* ===== more reading volume (v0.3.0): longer levels need lots to read ===== */
+Array.prototype.push.apply(WORDS1, [
+  ['tub', '\u{1F6C1}'], ['hut', '\u{1F6D6}'], ['pin', '\u{1F4CC}'], ['tag', '\u{1F3F7}️'], ['lip', '\u{1F444}'],
+  ['leg', '\u{1F9B5}'], ['pan', '\u{1F373}'], ['gem', '\u{1F48E}'], ['cab', '\u{1F695}'], ['jet', '✈️'], ['sad', '\u{1F622}']
+]);
+Array.prototype.push.apply(WORDS2, [
+  ['swan', '\u{1F9A2}'], ['thumb', '\u{1F44D}'], ['brick', '\u{1F9F1}'], ['dress', '\u{1F457}'], ['plug', '\u{1F50C}'],
+  ['shrimp', '\u{1F990}'], ['swim', '\u{1F3CA}'], ['clap', '\u{1F44F}'], ['trash', '\u{1F5D1}️'], ['chess', '♟️']
+]);
+Array.prototype.push.apply(WORDS3, [
+  ['tie', '\u{1F454}'], ['pie', '\u{1F967}'], ['peach', '\u{1F351}'], ['smile', '\u{1F60A}'], ['spoon', '\u{1F944}'],
+  ['broom', '\u{1F9F9}'], ['tooth', '\u{1F9B7}'], ['coat', '\u{1F9E5}'], ['bowl', '\u{1F963}'], ['snail', '\u{1F40C}'],
+  ['paint', '\u{1F3A8}'], ['grape', '\u{1F347}'], ['skate', '⛸️'], ['game', '\u{1F3AE}'], ['wave', '\u{1F30A}']
+]);
+Array.prototype.push.apply(SIGHT, [
+  ['many', 'may', 'any'], ['every', 'very', 'ever'], ['done', 'gone', 'none'], ['from', 'form', 'farm'],
+  ['give', 'gave', 'girl'], ['put', 'pull', 'push'], ['know', 'now', 'new'], ['walk', 'talk', 'wall'],
+  ['eight', 'light', 'night'], ['friend', 'fried', 'find']
+]);
+Array.prototype.push.apply(SILLY, [
+  'The fish climbed up the tree.', 'My dog can read a book.', 'I brush my teeth with a shoe.', 'The car eats grass.',
+  'A snake has four legs.', 'We put our milk in the oven.', 'The baby drove the bus to school.', 'Snow is hot and red.',
+  'The cat barked at the moon.', 'I wear my socks on my hands.', 'The bird swam to the bottom of the sea.', 'A pig can fly a plane.'
+]);
+Array.prototype.push.apply(SENSIBLE, [
+  'We wash our hands with soap.', 'A bird has two wings.', 'The baby drinks milk.', 'Fish live in water.',
+  'We wear a coat when it is cold.', 'A dog has four legs.', 'Bees make honey.', 'We sleep at night.',
+  'The firefighter puts out fires.', 'A clock tells the time.', 'Rain falls from the clouds.', 'We cut paper with scissors.'
+]);
+Array.prototype.push.apply(MISSING, [
+  ['The bird sat in its _.', 'nest', ['shoe', 'run']],
+  ['I use a towel to get _.', 'dry', ['book', 'jump']],
+  ['Ice cream is cold and _.', 'sweet', ['loud', 'jump']],
+  ['The baby is crying because she is _.', 'hungry', ['table', 'blue']],
+  ['We plant seeds in the _.', 'dirt', ['sky', 'soup']],
+  ['It is dark, so turn on the _.', 'light', ['sink', 'cat']],
+  ['The dog wagged its _.', 'tail', ['hat', 'sing']],
+  ['A cow gives us _.', 'milk', ['shoes', 'rocks']],
+  ['My mom reads me a story before _.', 'bed', ['jump', 'rain']],
+  ['When it snows, I wear my _.', 'boots', ['swimsuit', 'spoon']],
+  ['The cat chased the _.', 'mouse', ['cloud', 'sing']],
+  ['The sun comes up in the _.', 'morning', ['night', 'bath']],
+  ['Five plus five is _.', 'ten', ['red', 'dog']],
+  ['The firefighter drove the fire _.', 'truck', ['cake', 'bed']],
+  ['A frog says _.', 'ribbit', ['moo', 'meow']],
+  ['I wash my hands with soap and _.', 'water', ['sand', 'jam']],
+  ['The teacher wrote on the _.', 'board', ['dog', 'soup']],
+  ['We eat breakfast in the _.', 'morning', ['night', 'tree']]
+]);
+Array.prototype.push.apply(BUILD, [
+  ['The cat is on the mat.', '\u{1F408}'], ['I can run and jump.', '\u{1F3C3}'], ['We go to the park.', '\u{1F6DD}'],
+  ['The fish is in the tank.', '\u{1F41F}'], ['My dad has a big hat.', '\u{1F3A9}'], ['Look at the big moon.', '\u{1F315}'],
+  ['The bee can buzz.', '\u{1F41D}'], ['She can kick the ball.', '⚽'], ['I like to eat apples.', '\u{1F34E}'],
+  ['The bird can sing a song.', '\u{1F426}'], ['It is cold and snowy.', '❄️'], ['We read a book at night.', '\u{1F4D6}'],
+  ['The frog sat on a log.', '\u{1F438}'], ['My cat likes to sleep.', '\u{1F634}'], ['The car is in the rain.', '\u{1F697}']
+]);
+Array.prototype.push.apply(TWO, [
+  ['Pat has a cat. The cat likes to play with yarn.', 'What does the cat play with?', '\u{1F9F6}', '⚽', '\u{1F9B4}'],
+  ['Mom put on her boots. Then she went out in the snow.', 'What was outside?', '❄️', '☀️', '\u{1F30A}'],
+  ['Leo planted a seed. Soon a red flower grew.', 'What grew?', '\u{1F339}', '\u{1F333}', '\u{1F34E}'],
+  ['Jen found a shell. She found it at the beach.', 'Where did Jen find the shell?', '\u{1F3D6}️', '\u{1F3EB}', '\u{1F6C1}'],
+  ['Tim was hungry. He ate a big banana.', 'What did Tim eat?', '\u{1F34C}', '\u{1F34E}', '\u{1F355}'],
+  ['The baby is very tired. Mom puts her in the crib.', 'What will the baby do?', '\u{1F634}', '\u{1F3C3}', '\u{1F37D}️'],
+  ['Dad got in the car. He drove to work.', 'How did Dad get to work?', '\u{1F697}', '\u{1F6B2}', '\u{1F68C}'],
+  ['The farmer has a red barn. In the barn there is a cow.', 'What is in the barn?', '\u{1F404}', '\u{1F416}', '\u{1F414}'],
+  ['Ana painted a picture. She painted the sun and a tree.', 'What did Ana paint?', '☀️\u{1F333}', '\u{1F319}⭐', '\u{1F697}\u{1F3E0}'],
+  ['Sam had four balloons. One popped.', 'How many balloons does Sam have now?', '\u{1F388}\u{1F388}\u{1F388}', '\u{1F388}\u{1F388}\u{1F388}\u{1F388}', '\u{1F388}'],
+  ["It is bath time for Max. He plays with his toy duck.", 'What does Max play with?', '\u{1F986}', '\u{1F697}', '\u{1F9F8}'],
+  ['The kids went to the pool. They swam all day.', 'What did the kids do?', '\u{1F3CA}', '⛷️', '\u{1F6B4}'],
+  ['Rita lost her cat. She found it under the bed.', 'Where was the cat?', '\u{1F6CF}️\u{1F408}', '\u{1F333}\u{1F408}', '\u{1F697}\u{1F408}'],
+  ['Ben wanted to see the stars. He looked up at night.', 'When did Ben look up?', '\u{1F319}', '☀️', '\u{1F305}'],
+  ['The plant was dry. Lily gave it some water.', 'What did Lily give the plant?', '\u{1F4A7}', '\u{1F355}', '\u{1F9E6}'],
+  ['Grandma likes to knit. She made me a warm scarf.', 'What did Grandma make?', '\u{1F9E3}', '\u{1F9E4}', '\u{1F45F}'],
+  ['A big truck came down the street. It took away the trash.', 'What did the truck take?', '\u{1F5D1}️', '\u{1F34E}', '\u{1F6CF}️'],
+  ['The cat saw a mouse. The mouse ran into a hole.', 'Where did the mouse go?', '\u{1F573}️', '\u{1F333}', '\u{1F6C1}']
+]);
+Array.prototype.push.apply(STORIES, [
+  ['Mia wanted to bake. She got flour, sugar and eggs. Dad helped her mix it all. The cookies came out warm and yummy.', 'What did Mia bake?', '\u{1F36A}', '\u{1F382}', '\u{1F35E}'],
+  ['Jake went to the doctor. His arm hurt. The doctor put a cast on it. Jake picked a blue cast.', 'Where did Jake go?', '\u{1F3E5}', '\u{1F3EB}', '\u{1F3D6}️'],
+  ['The class has a pet. Its name is Bubbles. Every day a kid feeds it. Bubbles swims round and round in its tank.', 'What is Bubbles?', '\u{1F41F}', '\u{1F436}', '\u{1F426}'],
+  ['It was windy outside. Lucy took her kite to the hill. The kite went up high. It looked like a bird in the sky.', 'What did Lucy take to the hill?', '\u{1FA81}', '⚽', '\u{1F6B2}'],
+  ['Tom found a little animal. It was walking very slowly across the road. It had a hard shell. Tom carried it to the pond.', 'What did Tom find?', '\u{1F422}', '\u{1F438}', '\u{1F40D}'],
+  ['Dad and Emma went camping. They set up a tent. At night they made a fire. They slept under the stars.', 'Where did they sleep?', '⛺', '\u{1F3E0}', '\u{1F697}'],
+  ['Ben wanted a snack. He opened the fridge. He found some cheese. He ate it with crackers.', 'What did Ben find?', '\u{1F9C0}', '\u{1F370}', '\u{1F955}'],
+  ['It was Halloween. Zoe dressed up as a cat. She went door to door with her brother. They got lots of candy.', 'What did they get?', '\u{1F36C}', '\u{1F34E}', '\u{1F9F8}'],
+  ['A big ship sailed on the sea. The captain looked out. A whale jumped out of the water! Everyone on the ship cheered.', 'What did the captain see?', '\u{1F433}', '\u{1F988}', '\u{1F419}'],
+  ['Lily has a garden. She grows carrots and tomatoes. Every day she pulls the weeds. In the summer she picks the food to eat.', 'What does Lily grow?', '\u{1F955}\u{1F345}', '\u{1F34E}\u{1F34C}', '\u{1F33D}\u{1F347}']
+]);
+Array.prototype.push.apply(FEEL, [
+  ['Ava got a gold star from her teacher.', 'How does Ava feel?', '\u{1F600}', '\u{1F622}', '\u{1F621}'],
+  ['Jack spilled paint on his new shirt. Now it is ruined.', 'How does Jack feel?', '\u{1F622}', '\u{1F600}', '\u{1F634}'],
+  ['A bee buzzed near Mila. She ran away and hid.', 'How does Mila feel?', '\u{1F628}', '\u{1F600}', '\u{1F634}'],
+  ["Ryan's friend broke his crayons and laughed at him.", 'How does Ryan feel?', '\u{1F621}', '\u{1F600}', '\u{1F634}'],
+  ['The magic man pulled a rabbit out of a hat! Eli did not think that could happen.', 'How does Eli feel?', '\u{1F632}', '\u{1F622}', '\u{1F634}'],
+  ['Sofia stayed up very late at the party. In the car she could not keep her eyes open.', 'How does Sofia feel?', '\u{1F634}', '\u{1F621}', '\u{1F628}'],
+  ['Dan had to say goodbye to his best friend. His friend moved far away.', 'How does Dan feel?', '\u{1F622}', '\u{1F600}', '\u{1F632}'],
+  ['Today is the first snow day! Kim ran outside to play.', 'How does Kim feel?', '\u{1F600}', '\u{1F622}', '\u{1F621}']
+]);
+Array.prototype.push.apply(ORDER, [
+  ['Mom washed the dog.', 'The dog shook off the water.', 'Mom got all wet!'],
+  ['Jack put on his socks.', 'He put on his shoes.', 'He tied the laces.'],
+  ['The sky got dark.', 'Thunder went boom.', 'Rain came pouring down.'],
+  ['Ella got a cup.', 'She poured the juice.', 'She drank it all up.'],
+  ['Leo got an ice cream.', 'He sat in the hot sun.', 'His ice cream melted.'],
+  ['The teacher read a story.', 'The kids asked questions.', 'Then it was time for lunch.'],
+  ['Sam blew up a balloon.', 'He tied a knot.', 'He let it float away.'],
+  ['The caterpillar ate leaves.', 'It made a cocoon.', 'It came out as a butterfly.'],
+  ['We got on the plane.', 'The plane flew high.', 'We landed near Grandma.'],
+  ['Dad cut the bread.', 'He put on peanut butter.', 'He gave me the sandwich.']
+]);
+Array.prototype.push.apply(LONG, [
+  { t: "Sophie wanted a pet. Her mom said she had to show she could take care of one. For one week, Sophie fed the neighbor's dog every day. She also took it for walks. At the end of the week, Mom said yes. Sophie got a puppy named Biscuit.",
+    q: [['What did Sophie want?', 'a pet', 'a bike', 'a cake'],
+        ['Whose dog did Sophie feed?', "the neighbor's dog", 'her own dog', 'a lost dog'],
+        ['How long did Sophie help?', 'one week', 'one day', 'one year'],
+        ["What is the puppy's name?", 'Biscuit', 'Cookie', 'Muffin']] },
+  { t: 'Jamal and his grandma went to the library. Jamal picked a book about dinosaurs. Grandma picked a book about cooking. They read together on a big soft chair. Jamal learned that some dinosaurs were as small as a chicken.',
+    q: [['Where did they go?', 'the library', 'the zoo', 'the store'],
+        ["What was Jamal's book about?", 'dinosaurs', 'cooking', 'cars'],
+        ['Where did they read?', 'on a big soft chair', 'in the car', 'in the bath'],
+        ['What did Jamal learn?', 'Some dinosaurs were as small as a chicken.', 'Dinosaurs live in the library.', 'Grandma is a dinosaur.']] },
+  { t: 'One morning, the class saw a bird outside the window. It had a red chest. The teacher said it was a robin. The kids drew pictures of the robin. They hung the pictures on the wall.',
+    q: [['When did the class see the bird?', 'one morning', 'at night', 'after dinner'],
+        ['What color was its chest?', 'red', 'blue', 'yellow'],
+        ['What kind of bird was it?', 'a robin', 'a duck', 'an owl'],
+        ['What did the kids do with the pictures?', 'hung them on the wall', 'took them home', 'threw them away']] },
+  { t: 'Carlos had a soccer game on Saturday. He was the goalie. The other team kicked the ball very hard. Carlos jumped and caught it! His team won the game by one goal.',
+    q: [['When was the game?', 'on Saturday', 'on Monday', 'at night'],
+        ['What job did Carlos have on the team?', 'the goalie', 'the coach', 'the bus driver'],
+        ['What did Carlos do?', 'He caught the ball.', 'He fell asleep.', 'He went home.'],
+        ['Who won the game?', 'his team', 'the other team', 'nobody']] },
+  { t: 'It was raining, so the family stayed inside. They built a fort with blankets and chairs. Inside the fort they ate popcorn. Then they told funny stories with a flashlight. It was the best rainy day ever.',
+    q: [['Why did they stay inside?', 'It was raining.', 'It was too hot.', 'The car was broken.'],
+        ['What did they build the fort with?', 'blankets and chairs', 'sand and water', 'snow and ice'],
+        ['What did they eat in the fort?', 'popcorn', 'soup', 'ice cream'],
+        ['What did they use when they told stories?', 'a flashlight', 'a phone', 'a drum']] },
+  { t: "Maya's tooth hurt, so she went to the dentist. The dentist looked in her mouth. She found a small hole in the tooth. She fixed it in just a few minutes. Maya got a new toothbrush to take home.",
+    q: [['Why did Maya go to the dentist?', 'Her tooth hurt.', 'Her foot hurt.', 'She was hungry.'],
+        ['What did the dentist find?', 'a small hole in the tooth', 'a bug', 'a coin'],
+        ['How long did it take to fix?', 'a few minutes', 'all day', 'a week'],
+        ['What did Maya take home?', 'a new toothbrush', 'a toy car', 'a puppy']] }
+]);
+
+function feelRound() {
+  var f = pickFresh('feel', FEEL);
+  var html = '<p>' + esc(f[0]) + '</p><p class="q">❓ ' + esc(f[1]) + '</p>';
+  var choices = [{ html: f[2], ok: true }, { html: f[3], ok: false }, { html: f[4], ok: false }];
+  return { kind: 'choice', prompt: html, promptClass: 'story', choices: choices, choiceClass: 'pic', hint: f[0] + ' ' + f[1], right: pick(PRAISE) + ' Good thinking!' };
+}
+function orderRound() {
+  var o = pickFresh('order', ORDER);
+  return { kind: 'build', units: o.slice(), unitClass: 'sent', slotClass: 'sent', slotsClass: 'col', pic: '', hint: 'What happened first?', right: o.join(' ') };
+}
+var LONG_Q = (function () { var out = []; LONG.forEach(function (st, i) { st.q.forEach(function (q, j) { out.push([i, j]); }); }); return out; })();
+function longRound() {
+  var pickd = pickFresh('long', LONG_Q), st = LONG[pickd[0]], q = st.q[pickd[1]];
+  var html = '<p>' + esc(st.t) + '</p><p class="q">❓ ' + esc(q[0]) + '</p>';
+  var choices = [{ html: esc(q[1]), ok: true }, { html: esc(q[2]), ok: false }, { html: esc(q[3]), ok: false }];
+  return { kind: 'choice', prompt: html, promptClass: 'story long', choices: choices, choiceClass: 'ans', hint: st.t + ' ' + q[0], right: q[1] + '! ' + pick(PRAISE) };
+}
+
 var PRAISE = ['Yes!', 'Great job!', 'You got it!', 'Super!', 'Awesome!', 'Nice one!', 'Way to go!'];
 
 /* ================= round builders ================= */
@@ -720,7 +1024,6 @@ function storyRound(list, key) {
 }
 
 /* --- numbers --- */
-function appleRow(n, cls) { return repeat('<span class="' + (cls || 'apple') + '">\u{1F34E}</span>', n); }
 function plural(n, w) { return n + ' ' + w + (n === 1 ? '' : 's'); }
 function numChoices(ans, max) {
   var set = [ans];
@@ -730,43 +1033,110 @@ function numChoices(ans, max) {
   while (set.length < 3) { var r = rnd(max + 1); if (set.indexOf(r) < 0) set.push(r); }
   return set.map(function (n) { return { html: String(n), ok: n === ans }; });
 }
+/* n countable things. cls marks the group (ga, gb, gbox, gc, gt) so the teacher can light them in order. */
+function aps(n, cls, glyph) { return repeat('<span class="ap ' + (cls || '') + '">' + (glyph || '\u{1F34E}') + '</span>', n); }
 function term(n, mini, q) {
   return '<div class="term"><div class="n' + (q ? ' q' : '') + '"' + (q ? ' id="qn"' : '') + '>' + (q ? '?' : n) + '</div><div class="mini">' + (mini || '') + '</div></div>';
 }
 function fillQ(v) { var q = $('qn'); if (q) { q.textContent = v; q.classList.add('filled'); } }
+function q$(sel) { return Array.prototype.slice.call(promptEl.querySelectorAll(sel)); }
 
+/* --- teaching steps: light things up one at a time while the voice counts --- */
+function clearMarks() { q$('.ap').forEach(function (n) { n.classList.remove('counted'); n.removeAttribute('data-n'); }); }
+function countSteps(nodes, from) {
+  return nodes.map(function (n, i) {
+    return { fn: function () { n.classList.add('counted'); n.setAttribute('data-n', from + i); sTap(); }, say: String(from + i), rate: 1.15 };
+  });
+}
+var COUNT_THINGS = ['\u{1F34E}', '\u{1F41F}', '⭐', '\u{1F697}', '\u{1F388}', '\u{1F36A}', '\u{1F424}', '\u{1F338}', '\u{1F98B}', '\u{1F34C}'];
+function countRound(lo, hi) {
+  var n = lo + rnd(hi - lo + 1), e = pick(COUNT_THINGS);
+  var html = '<div class="apples five">' + aps(n, 'ga', e) + '</div>';
+  return {
+    kind: 'choice', prompt: html, promptClass: 'feedp', choices: numChoices(n, hi + 2), choiceClass: 'num',
+    say: 'How many?', hint: 'How many? Tap each one to count.', right: 'There are ' + n + '!', countable: true,
+    explain: function () {
+      return [{ fn: clearMarks, say: "Let's count together. Touch each one." }]
+        .concat(countSteps(q$('.ga'), 1))
+        .concat([{ say: 'The last number is how many. There are ' + n + '!' }]);
+    }
+  };
+}
+function addExplain(a, b, c) {
+  return function () {
+    return [{ fn: clearMarks, say: "Let's count them all." }]
+      .concat(countSteps(q$('.ga'), 1))
+      .concat([{ say: 'Now keep counting.' }])
+      .concat(countSteps(q$('.gb'), a + 1))
+      .concat([{ say: a + ' and ' + b + ' makes ' + c + '!' }]);
+  };
+}
 function feedRound() {
   var a = 1 + rnd(4), b = 1 + rnd(5 - a), c = a + b;
-  var html = '<div class="feed"><div class="apples">' + appleRow(a) + '</div><span class="plus">+</span><div class="apples">' + appleRow(b) + '</div></div>';
+  var html = '<div class="feed"><div class="apples">' + aps(a, 'ga') + '</div><span class="plus">+</span><div class="apples">' + aps(b, 'gb') + '</div></div>';
+  var line = plural(a, 'apple') + ', and ' + b + ' more. How many apples?';
   return {
-    kind: 'choice', prompt: html, promptClass: 'feedp', choices: numChoices(c, 6), choiceClass: 'num',
-    say: plural(a, 'apple') + ', and ' + b + ' more. How many apples?', hint: plural(a, 'apple') + ', and ' + b + ' more. How many apples?',
-    right: c + '! Yum yum!', countable: true
+    kind: 'choice', prompt: html, promptClass: 'feedp', choices: numChoices(c, 7), choiceClass: 'num',
+    say: line, hint: line, right: c + '! Yum yum!', countable: true, explain: addExplain(a, b, c)
+  };
+}
+function addPicRound() {
+  var c = 3 + rnd(6), a = 1 + rnd(c - 1), b = c - a;
+  var html = '<div class="stack"><div class="feed"><div class="apples">' + aps(a, 'ga') + '</div><span class="plus">+</span><div class="apples">' + aps(b, 'gb') + '</div></div>' +
+    '<div class="eqline">' + a + ' + ' + b + ' = <span class="n q" id="qn">?</span></div></div>';
+  return {
+    kind: 'choice', prompt: html, promptClass: 'feedp', choices: numChoices(c, 10), choiceClass: 'num',
+    say: a + ' plus ' + b, hint: a + ' plus ' + b + '. Count all the apples.', right: a + ' plus ' + b + ' is ' + c + '!',
+    countable: true, explain: addExplain(a, b, c), onRight: function () { fillQ(c); }
   };
 }
 function addRound() {
   var c = 3 + rnd(8), a = 1 + rnd(c - 1), b = c - a;
-  var html = term(a, appleRow(a, 'm')) + '<div class="op">+</div>' + term(b, appleRow(b, 'm')) + '<div class="op">=</div>' + term(c, '', true);
+  var html = term(a, aps(a, 'ga m')) + '<div class="op">+</div>' + term(b, aps(b, 'gb m')) + '<div class="op">=</div>' + term(c, '', true);
   return {
     kind: 'choice', prompt: html, promptClass: 'eq', choices: numChoices(c, 12), choiceClass: 'num',
-    say: a + ' plus ' + b, hint: a + ' plus ' + b, right: a + ' plus ' + b + ' is ' + c + '!', onRight: function () { fillQ(c); }
+    say: a + ' plus ' + b, hint: a + ' plus ' + b, right: a + ' plus ' + b + ' is ' + c + '!', onRight: function () { fillQ(c); },
+    explain: addExplain(a, b, c)
   };
 }
 function mysteryRound() {
   var c = 3 + rnd(8), a = 1 + rnd(c - 1), b = c - a;
-  var html = term(a, appleRow(a, 'm')) + '<div class="op">+</div>' + term(b, '', true) + '<div class="op">=</div>' + term(c, appleRow(c, 'm'));
+  var html = term(a, aps(a, 'ga m')) + '<div class="op">+</div>' + term(b, aps(b, 'gbox m hid'), true) + '<div class="op">=</div>' + term(c, aps(c, 'gc m'));
   return {
     kind: 'choice', prompt: html, promptClass: 'eq', choices: numChoices(b, 10), choiceClass: 'num',
-    say: a + ' plus what, makes ' + c + '?', hint: a + ' plus what, makes ' + c + '?', right: a + ' plus ' + b + ' makes ' + c + '!', onRight: function () { fillQ(b); }
+    say: a + ' plus what, makes ' + c + '?', hint: a + ' plus what, makes ' + c + '?', right: a + ' plus ' + b + ' makes ' + c + '!', onRight: function () { fillQ(b); },
+    explain: function () {
+      var box = q$('.gbox');
+      var steps = [{ fn: function () { clearMarks(); box.forEach(function (n) { n.classList.add('hid'); }); }, say: 'We have ' + a + '. We need ' + c + '.' }];
+      steps = steps.concat(countSteps(q$('.ga'), 1));
+      steps.push({ say: 'Put apples in the box until we get to ' + c + '.' });
+      box.forEach(function (n, i) {
+        steps.push({ fn: function () { n.classList.remove('hid'); n.classList.add('counted'); n.setAttribute('data-n', a + i + 1); sPop(); }, say: String(a + i + 1), rate: 1.15 });
+      });
+      steps.push({ say: 'We put ' + b + ' in the box. So the answer is ' + b + '!' });
+      return steps;
+    }
   };
 }
 function takeRound() {
   var a = 3 + rnd(8), b = 1 + rnd(a - 1), c = a - b;
-  var mini = appleRow(a - b, 'm') + repeat('<span class="gone">\u{1F34E}</span>', b);
+  var mini = aps(c, 'ga m') + aps(b, 'gt m gone');
   var html = term(a, mini) + '<div class="op">&minus;</div>' + term(b, '') + '<div class="op">=</div>' + term(c, '', true);
   return {
     kind: 'choice', prompt: html, promptClass: 'eq', choices: numChoices(c, 10), choiceClass: 'num',
-    say: a + ' take away ' + b, hint: a + ' take away ' + b, right: a + ' take away ' + b + ' is ' + c + '!', onRight: function () { fillQ(c); }
+    say: a + ' take away ' + b, hint: a + ' take away ' + b + '. Count the apples that are left.', right: a + ' take away ' + b + ' is ' + c + '!', onRight: function () { fillQ(c); },
+    explain: function () {
+      var gone = q$('.gt');
+      var steps = [{ fn: function () { clearMarks(); gone.forEach(function (n) { n.classList.remove('gone'); }); }, say: 'We start with ' + a + ' apples.' }];
+      steps.push({ fn: function () { restart(monsterEl, 'chomp'); }, say: 'The monster eats ' + b + '.' });
+      gone.slice().reverse().forEach(function (n, i) {
+        steps.push({ fn: function () { n.classList.add('gone'); sChomp(); }, say: String(i + 1), rate: 1.15 });
+      });
+      steps.push({ say: 'Now count what is left.' });
+      steps = steps.concat(countSteps(q$('.ga'), 1));
+      steps.push({ say: a + ' take away ' + b + ' is ' + c + '!' });
+      return steps;
+    }
   };
 }
 
@@ -974,22 +1344,26 @@ function findClockRound() {
 /* ================= levels ================= */
 var LEVELS = {
   read: [
-    { name: 'Short words (cat, sun)', need: 2, intro: 'Read the word. Tap the picture.', make: function () { return wordPicRound(WORDS1, 'w1'); } },
-    { name: 'Blends (frog, ship)', need: 4, intro: 'Read the word. Tap the picture.', make: function () { return wordPicRound(WORDS2, 'w2'); } },
-    { name: 'Long vowels (cake, boat)', need: 4, intro: 'Read the word. Tap the picture.', make: function () { return wordPicRound(WORDS3, 'w3'); } },
-    { name: 'Sight words (said, was)', need: 4, intro: 'Listen. Tap the word.', make: sightRound },
-    { name: 'Sentence to picture', need: 4, intro: 'Read it. Tap the picture.', make: sentencePicRound },
-    { name: 'Silly or not?', need: 4, intro: 'Is it silly? Or is it right?', make: sillyRound },
-    { name: 'Missing word', need: 4, intro: 'Which word fits?', make: missingRound },
-    { name: 'Build the sentence', need: 4, intro: 'Make the sentence.', make: buildRound },
-    { name: 'Two sentences + question', need: 4, intro: 'Read it. Then answer.', make: function () { return storyRound(TWO, 'two'); } },
-    { name: 'Little stories', need: 4, intro: 'Read the story. Then answer.', make: function () { return storyRound(STORIES, 'story'); } }
+    { name: 'Short words (cat, sun)', need: 4, goal: 15, intro: 'Read the word. Tap the picture.', make: function () { return wordPicRound(WORDS1, 'w1'); } },
+    { name: 'Blends (frog, ship)', need: 4, goal: 15, intro: 'Read the word. Tap the picture.', make: function () { return wordPicRound(WORDS2, 'w2'); } },
+    { name: 'Long vowels (cake, boat)', need: 4, goal: 15, intro: 'Read the word. Tap the picture.', make: function () { return wordPicRound(WORDS3, 'w3'); } },
+    { name: 'Sight words (said, was)', need: 4, goal: 15, intro: 'Listen. Tap the word.', make: sightRound },
+    { name: 'Sentence to picture', need: 4, goal: 20, intro: 'Read it. Tap the picture.', make: sentencePicRound },
+    { name: 'Silly or not?', need: 4, goal: 20, intro: 'Is it silly? Or is it right?', make: sillyRound },
+    { name: 'Missing word', need: 4, goal: 20, intro: 'Which word fits?', make: missingRound },
+    { name: 'Build the sentence', need: 4, goal: 20, intro: 'Make the sentence.', make: buildRound },
+    { name: 'Two sentences + question', need: 4, goal: 20, intro: 'Read it. Then answer.', make: function () { return storyRound(TWO, 'two'); } },
+    { name: 'Little stories', need: 4, goal: 20, intro: 'Read the story. Then answer.', make: function () { return storyRound(STORIES, 'story'); } },
+    { name: 'How do they feel?', need: 4, goal: 20, intro: 'Read it. How do they feel?', make: feelRound },
+    { name: 'Story order (first, next, last)', need: 4, goal: 20, intro: 'What happened first? Put the story in order.', make: orderRound },
+    { name: 'Long stories, written answers', need: 4, goal: 30, intro: 'Read the story. Then read the answers.', make: longRound }
   ],
   math: [
-    { name: 'Feed the monster (to 5)', need: 3, intro: 'Feed the monster!', make: feedRound },
-    { name: 'Adding (to 10)', need: 4, intro: '', make: addRound },
-    { name: 'Mystery box (2 + ? = 5)', need: 4, intro: 'What is in the box?', make: mysteryRound },
-    { name: 'Take away', need: 4, intro: 'Take away!', make: takeRound }
+    { name: 'Feed the monster (add pictures to 5)', need: 4, teach: 2, intro: 'Feed the monster!', make: feedRound },
+    { name: 'Add with pictures (to 8)', need: 4, teach: 2, intro: '', make: addPicRound },
+    { name: 'Add numbers (to 10)', need: 4, teach: 2, intro: '', make: addRound },
+    { name: 'Mystery box (2 + ? = 5)', need: 4, teach: 2, intro: 'What is in the box?', make: mysteryRound },
+    { name: 'Take away', need: 4, teach: 2, intro: 'Take away!', make: takeRound }
   ],
   spell: [
     { name: 'Missing letter (c_t)', need: 3, intro: 'Which letter is missing?', make: missingLetterRound },
@@ -1039,7 +1413,7 @@ function renderHome() {
   });
 }
 function showHome() {
-  hush(); clearTimeout(hintTimer); busy = false; world = null; round = null;
+  hush(); stopSteps(); clearTimeout(hintTimer); busy = false; world = null; round = null;
   playEl.classList.remove('on'); homeEl.classList.add('on');
   renderHome();
 }
@@ -1052,20 +1426,70 @@ function enterWorld(w) {
 }
 
 function renderDots() {
-  var ws = save.w[world], need = LEVELS[world][ws.level - 1].need, h = '';
+  var ws = save.w[world], def = LEVELS[world][ws.level - 1], need = def.need, h = '';
+  if (def.goal) {
+    var pct = Math.min(100, Math.round(100 * (ws.lvRight || 0) / def.goal));
+    dotsEl.innerHTML = '<div class="bar"><div style="width:' + pct + '%"></div></div><span class="barstar">\u2B50</span>';
+    return;
+  }
   for (var i = 0; i < need; i++) h += '<div class="dot' + (i < ws.streak ? ' full' : '') + '"></div>';
   dotsEl.innerHTML = h;
+}
+
+/* Play a list of steps: each runs fn, then speaks (and waits for the voice) or waits. */
+var stepToken = 0;
+function runSteps(steps, done) {
+  var token = ++stepToken, i = 0;
+  function next() {
+    if (token !== stepToken) return;
+    if (i >= steps.length) { if (done) done(); return; }
+    var st = steps[i++];
+    if (st.fn) st.fn();
+    if (st.say) say(st.say, function () { setTimeout(next, st.pause || 120); }, st.rate);
+    else setTimeout(next, st.wait || 400);
+  }
+  next();
+}
+function stopSteps() { stepToken++; }
+var bulbEl = $('bulb');
+
+/* "Watch me": run the round's explanation, then let him answer with the right one glowing. */
+function teach(r, lead) {
+  if (!r.explain || r.done) return;
+  r.teaching = true;
+  bulbEl.classList.remove('glow');
+  r.choices.forEach(function (x) { if (x.el) x.el.classList.remove('hint'); });
+  var steps = (lead ? [{ say: lead }] : []).concat(r.explain());
+  runSteps(steps, function () {
+    if (round !== r) return;
+    r.teaching = false;
+    r.choices.forEach(function (x) { if (x.ok && x.el) x.el.classList.add('hint'); });
+    say('Now you tap it!');
+  });
 }
 
 function nextRound() {
   if (!world) return;
   clearTimeout(hintTimer);
+  stopSteps();
   speakerEl.classList.remove('wiggle');
   var ws = save.w[world];
   var lv = LEVELS[world][ws.level - 1];
   var r = lv.make();
   r.firstTry = true; r.wrong = 0; r.done = false;
   round = r;
+  bulbEl.style.display = r.explain ? '' : 'none';
+  bulbEl.classList.remove('glow');
+  if (r.explain && ws.teach > 0) {
+    ws.teach--; r.taught = true; persist();
+    if (r.kind === 'build') renderBuild(r); else renderChoice(r);
+    restart(stageEl, 'enter');
+    renderDots();
+    var lead = (introPending && lv.intro ? lv.intro + ' ' : '') + 'Watch me first. ' + (r.say || '');
+    introPending = false;
+    setTimeout(function () { if (round === r) teach(r, lead); }, 300);
+    return;
+  }
   if (r.kind === 'build') renderBuild(r);
   else if (r.kind === 'shop') renderShop(r);
   else renderChoice(r);
@@ -1103,18 +1527,18 @@ function renderChoice(r) {
   });
   if (r.countable) {
     var count = 0;
-    Array.prototype.forEach.call(promptEl.querySelectorAll('.apple'), function (ap) {
+    Array.prototype.forEach.call(promptEl.querySelectorAll('.apples .ap'), function (ap) {
       ap.addEventListener('pointerdown', function (ev) {
         ev.preventDefault(); unlockAudio();
-        if (r.done || ap.classList.contains('counted')) return;
-        ap.classList.add('counted'); count++; sTap(); say(String(count));
+        if (r.done || r.teaching || ap.classList.contains('counted')) return;
+        count++; ap.classList.add('counted'); ap.setAttribute('data-n', count); sTap(); say(String(count));
       });
     });
   }
 }
 
 function onChoice(r, c, b) {
-  if (busy || r.done || round !== r || b.classList.contains('out')) return;
+  if (busy || r.done || r.teaching || round !== r || b.classList.contains('out')) return;
   unlockAudio();
   if (c.ok) {
     r.done = true;
@@ -1130,7 +1554,10 @@ function onChoice(r, c, b) {
     sBoing();
     restart(b, 'shake');
     b.classList.add('out');
-    if (r.wrong >= 2 || r.choices.length - r.wrong <= 1) {
+    if (r.explain && !r.explained) {
+      r.explained = true;
+      setTimeout(function () { if (round === r && !r.done) teach(r, 'Let me show you.'); }, 500);
+    } else if (r.wrong >= 2 || r.choices.length - r.wrong <= 1) {
       r.choices.forEach(function (x) { if (x.ok && x.el) x.el.classList.add('hint'); });
     }
   }
@@ -1138,7 +1565,7 @@ function onChoice(r, c, b) {
 
 function renderBuild(r) {
   promptEl.className = 'prompt build';
-  promptEl.innerHTML = '<div class="bpic">' + r.pic + '</div><div class="slots"></div>';
+  promptEl.innerHTML = (r.pic ? '<div class="bpic">' + r.pic + '</div>' : '') + '<div class="slots ' + (r.slotsClass || '') + '"></div>';
   var slots = promptEl.querySelector('.slots');
   r.slotEls = r.units.map(function () { var s = el('span', 'slot ' + (r.slotClass || ''), '&nbsp;'); slots.appendChild(s); return s; });
   r.pos = 0; r.wrongHere = 0;
@@ -1192,7 +1619,7 @@ function onBuildTap(r, w, b) {
 }
 
 function feedMonster() {
-  var apples = promptEl.querySelectorAll('.apple, .mini .m');
+  var apples = promptEl.querySelectorAll('.ap:not(.gone):not(.hid)');
   var body = monsterEl.querySelector('.mouth');
   Array.prototype.forEach.call(apples, function (ap, i) { if (i < 12) flyTo(ap, body, '\u{1F34E}', i * 70); });
   setTimeout(function () { restart(monsterEl, 'chomp'); sChomp(); }, 450);
@@ -1205,17 +1632,22 @@ function progress(firstTry) {
   ws.total++;
   if (firstTry) { ws.right++; ws.streak++; } else ws.streak = 0;
   ws.recent.push(firstTry ? 1 : 0);
-  if (ws.recent.length > 3) ws.recent.shift();
-  var need = levels[ws.level - 1].need;
-  if (ws.streak >= need) {
-    ws.streak = 0; ws.recent = [];
-    if (ws.level < levels.length) { ws.level++; introPending = true; }
+  var keep = levels[ws.level - 1].goal ? 4 : 3;
+  while (ws.recent.length > keep) ws.recent.shift();
+  var def = levels[ws.level - 1], need = def.need;
+  if (firstTry) ws.lvRight = (ws.lvRight || 0) + 1;
+  var levelDone = def.goal ? ws.lvRight >= def.goal : ws.streak >= need;
+  if (levelDone) {
+    ws.streak = 0; ws.recent = []; ws.lvRight = 0;
+    if (ws.level < levels.length) { ws.level++; introPending = true; ws.teach = levels[ws.level - 1].teach || 0; }
     if (ws.level > ws.best) ws.best = ws.level;
     return 'up';
   }
   var misses = ws.recent.filter(function (x) { return x === 0; }).length;
-  if (misses >= 2 && ws.level > 1) {
-    ws.level--; ws.streak = 0; ws.recent = []; introPending = true;
+  if (misses >= (levels[ws.level - 1].goal ? 3 : 2) && ws.level > 1) {
+    ws.level--; ws.streak = 0; ws.recent = []; introPending = true; ws.teach = levels[ws.level - 1].teach || 0;
+    var low = levels[ws.level - 1];
+    ws.lvRight = low.goal ? Math.max(0, low.goal - 5) : 0;
     return 'down';
   }
   return 'same';
@@ -1226,7 +1658,8 @@ function roundDone(r, fromNode) {
   clearTimeout(hintTimer);
   speakerEl.classList.remove('wiggle');
   save.stars++;
-  var res = progress(r.firstTry);
+  stopSteps();
+  var res = (r.taught || r.helped) ? 'same' : progress(r.firstTry);
   persist();
   renderDots();
   var started = Date.now();
@@ -1258,8 +1691,14 @@ function tapBtn(node, fn) {
   node.addEventListener('click', function (ev) { ev.preventDefault(); unlockAudio(); fn(ev); });
 }
 tapBtn($('backBtn'), function () { sTap(); showHome(); });
+tapBtn(bulbEl, function () {
+  if (!round || !round.explain || round.done || round.teaching || busy) return;
+  sTap();
+  round.helped = true; round.explained = true;
+  teach(round, '');
+});
 tapBtn(speakerEl, function () {
-  if (!round) return;
+  if (!round || round.teaching) return;
   speakerEl.classList.remove('wiggle');
   sTap();
   say(round.hint || '', null, round.sayRate);
@@ -1282,7 +1721,7 @@ function renderSettings() {
   WORLDS.forEach(function (W) {
     var ws = save.w[W.k], L = LEVELS[W.k];
     var d = el('div', 'box',
-      '<div class="row"><b>' + W.icon + ' ' + W.label + '</b><span class="muted">' + ws.right + ' first-try right of ' + ws.total + '</span></div>' +
+      '<div class="row"><b>' + W.icon + ' ' + W.label + '</b><span class="muted">' + ws.right + ' first-try right of ' + ws.total + (L[ws.level - 1].goal ? ' &middot; this level ' + (ws.lvRight || 0) + '/' + L[ws.level - 1].goal : '') + '</span></div>' +
       '<div class="row"><button class="pm" type="button">&minus;</button><span style="text-align:center;flex:1">Level ' + ws.level + ' of ' + L.length + ': ' + esc(L[ws.level - 1].name) + '</span><button class="pm" type="button">+</button></div>');
     var pm = d.querySelectorAll('.pm');
     tapBtn(pm[0], function () { setLevel(W.k, -1); });
@@ -1297,7 +1736,7 @@ function renderSettings() {
 function setLevel(k, d) {
   var ws = save.w[k], n = LEVELS[k].length;
   ws.level = Math.max(1, Math.min(n, ws.level + d));
-  ws.streak = 0; ws.recent = [];
+  ws.streak = 0; ws.recent = []; ws.lvRight = 0; ws.teach = LEVELS[k][ws.level - 1].teach || 0;
   if (ws.level > ws.best) ws.best = ws.level;
   persist(); renderSettings();
 }

@@ -36,12 +36,40 @@ Reading (`LEVELS.read`):
 8. Build the sentence (tap the word tiles in order)
 9. Two sentences plus a picture question
 10. Little stories
+11. How do they feel? (he has to infer the feeling, the text never names it; added v0.3.0)
+12. Story order: tap three sentences into first, next, last (a build round with sentence tiles)
+13. Long stories (about 6 sentences, `LONG`) with written-phrase answers, so a picture cannot give it away. 14 stories with 4 questions each.
 
-Numbers (`LEVELS.math`):
-1. Feed the monster (apples, sums to 5, tapping an apple counts it out loud)
-2. Adding to 10
-3. Mystery box (a + ? = c)
-4. Take away
+2026-11-14 playtest: levels 1-10 were too easy. He reads sentences and guesses well, and went
+through them fast. Robert asked to "overload" reading. Add harder levels on top and more
+content to `LONG`, `FEEL` and `ORDER` before anything else.
+
+Numbers (`LEVELS.math`, rebuilt in v0.3.0 because he was lost at the equations):
+1. Feed the monster (add pictures, sums to 5)
+2. Add with pictures, with the written sum underneath (to 8)
+3. Add numbers (to 10)
+4. Mystery box (a + ? = c)
+5. Take away
+Robert, 2026-11-14: he counts to any number easily, and it's the math itself that is hard.
+So there are no counting levels (`countRound` still exists if it's ever wanted).
+
+Teaching ("watch me"): every math round has an `explain()` that returns steps. Each step
+runs `fn`, then speaks and waits for the voice to finish (`runSteps`). Apples light up one by
+one with a number badge, the mystery box fills apple by apple, and take-away crosses
+apples out and then counts what is left. The explanation plays:
+- in the first `teach` rounds of a level (2), whenever he
+  arrives at a level by moving up or down;
+- automatically after his first wrong tap in a round;
+- whenever he taps the lightbulb button.
+Taught and lightbulb rounds don't change the streak or the miss count. A round where he
+tapped wrong first still counts as a miss. `save.mathV = 3` makes the one-time reset of
+older saves back to math level 1.
+
+Reading levels are long on purpose (Robert: "we need volume, not so much the difficulty").
+Each level has a `goal` of first-try right answers that don't need to be in a row:
+15 for levels 1-4, 20 for 5-12, and 30 for 13. A progress bar shows how far through the
+level he is. On these levels it takes 3 misses in 4 rounds to drop a level, and he lands 5
+right answers short of climbing back. When adding content, add a lot of it.
 
 Spelling (`LEVELS.spell`, added 2026-11-14 v0.2.0, starts at 1):
 1. Missing vowel (picture + c_t)
