@@ -46,6 +46,11 @@ Copy the template, fill it in, keep the newest entry at the top.
 - Players: each has their own levels and stars, picked by an animal face on the home screen. Added behind the gear.
 - Take away: all the apples start whole. The crossing-out and counting only play after a wrong tap or the lightbulb. No "watch me first" rounds on that level.
 
+**Changed as a result (v0.7.0, same day)**
+- Robert's idea: a take-away level that comes first, where he taps the apples away himself (6 - 4: tap 4 of the 6 apples, then tap the answer). It is Numbers level 5 and the number-only take away is now level 6.
+- Robert: "add more reading games and more difficult." Reading levels 14-18: riddles, opposites and same words, which one does not belong, what happens next, why.
+- To watch for: does he tap the apples without being shown, and are levels 14-18 hard enough?
+
 ### 2026-11-14 (night)  (build v0.5.0 on the iPad, Writing world)
 
 **Made him laugh / he liked**

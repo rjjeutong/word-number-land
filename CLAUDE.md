@@ -39,6 +39,14 @@ Reading (`LEVELS.read`):
 11. How do they feel? (he has to infer the feeling, the text never names it; added v0.3.0)
 12. Story order: tap three sentences into first, next, last (a build round with sentence tiles)
 13. Long stories (about 6 sentences, `LONG`) with written-phrase answers, so a picture cannot give it away. 14 stories with 4 questions each.
+14. Riddles: read the clues, tap the written answer (`RIDDLES`; added v0.7.0 with 15-18)
+15. Opposites and same-meaning words (`WORDQ`)
+16. Which one does not belong: four sentences, three go together (`ODD`)
+17. What happens next (`NEXT`)
+18. Why: the text never gives the reason, he works it out (`WHY`)
+
+Robert, 2026-11-21: "add more reading games and more difficult". Levels 14-18 have 30 to 49
+items each and a goal of 20. `qaRound` builds any text + question + three written answers.
 
 2026-11-14 playtest: levels 1-10 were too easy. He reads sentences and guesses well, and went
 through them fast. Robert asked to "overload" reading. Add harder levels on top and more
@@ -49,7 +57,11 @@ Numbers (`LEVELS.math`, rebuilt in v0.3.0 because he was lost at the equations):
 2. Add with pictures, with the written sum underneath (to 8)
 3. Add numbers (to 10)
 4. Mystery box (a + ? = c)
-5. Take away (no pictures of the answer, and no "watch me" rounds: see Players below)
+5. Take away with your finger (v0.7.0, Robert's idea): for 6 - 4 he sees 6 apples and taps 4
+   away himself. The answer tiles are dimmed (`.choices.wait`) until he has taken 4. Then
+   tapping the apples that are left counts them. One "watch me" round. `tapTakeRound`
+   uses the `setup` hook, which `renderChoice` calls after it draws a round.
+6. Take away (no pictures of the answer, and no "watch me" rounds: see Players below)
 Robert, 2026-11-14: he counts to any number easily, and it's the math itself that is hard.
 So there are no counting levels (`countRound` still exists if it's ever wanted).
 
@@ -137,7 +149,7 @@ Sound and voice speed are shared. An older one-player save becomes player 1 on l
 - The home tiles show one progress bar (level out of levels) and one star. A star per level
   ran off the tile once Reading had 13 levels.
 
-Take away (math level 5) has `teach: 0` and draws every apple whole, because the faded
+Take away (math level 6, `takeRound`) has `teach: 0` and draws every apple whole, because the faded
 apples gave the answer away (Robert, 2026-11-21: "he never really thinks"). The crossing-out
 only happens in `explain()` after a wrong tap or the lightbulb, and in `onRight`.
 

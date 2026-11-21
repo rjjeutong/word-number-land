@@ -149,6 +149,8 @@
   .ap.hid { display: none; }
   .ap.gone { opacity: 0.25; }
   .ap.gone::before { content: "\2716"; position: absolute; left: 0; right: 0; top: 0; text-align: center; color: #e74c3c; }
+  .choices.wait { opacity: 0.3; pointer-events: none; }
+  .apples.tapme .ap:not(.gone) { animation: bob 1.4s ease-in-out infinite; }
   .stack { display: flex; flex-direction: column; align-items: center; gap: 2vmin; }
   .eqline { font-size: min(10vmin, 84px); font-weight: 800; display: flex; align-items: center; gap: 0.3em; }
   .eqline .n.q { color: #fff; background: #b9c3da; border-radius: 2vmin; padding: 0 0.25em; }
@@ -295,7 +297,7 @@
 (function () {
 'use strict';
 
-var VERSION = '0.6.0';
+var VERSION = '0.7.0';
 var SAVE_KEY = 'wordnumberland-v1';
 
 /* ================= helpers ================= */
@@ -913,6 +915,201 @@ Array.prototype.push.apply(LONG, [
         ['What did Maya take home?', 'a new toothbrush', 'a toy car', 'a puppy']] }
 ]);
 
+/* ===== harder reading still (v0.7.0): riddles, word meanings, odd one out, what next, why ===== */
+/* [clues, right, wrong1, wrong2] */
+var RIDDLES = [
+  ['I have four legs and a tail. I bark when someone comes to the door.', 'a dog', 'a cat', 'a fish'],
+  ['I am yellow and long. Monkeys love to eat me. You must peel me first.', 'a banana', 'a lemon', 'a carrot'],
+  ['I am up in the sky at night. I am round and bright. Sometimes I look like a smile.', 'the moon', 'the sun', 'a cloud'],
+  ['I have hands but I can not clap. I have a face but I can not smile. I tell you the time.', 'a clock', 'a doll', 'a glove'],
+  ['I am cold and white. I fall from the sky in winter. You can make a ball with me.', 'snow', 'rain', 'sand'],
+  ['I have pages and words. You can read me in bed. I can tell you a story.', 'a book', 'a phone', 'a pillow'],
+  ['I have wings and feathers. I make a nest in a tree. I sing in the morning.', 'a bird', 'a bee', 'a bat'],
+  ['I am full of water. Fish live in me. Boats float on top of me.', 'the sea', 'a cup', 'a bath'],
+  ['You put me on your feet. I come in a pair. I have laces you can tie.', 'shoes', 'gloves', 'socks'],
+  ['I am big and yellow. I take children to school. I have many seats.', 'a school bus', 'a taxi', 'a bike'],
+  ['I have a long neck. I eat leaves from tall trees. I have brown spots.', 'a giraffe', 'a zebra', 'an elephant'],
+  ['I am hot and bright. I come up in the morning. Do not look right at me.', 'the sun', 'the moon', 'a lamp'],
+  ['I grow in the ground. I am orange and crunchy. Rabbits like to eat me.', 'a carrot', 'an orange', 'a pumpkin'],
+  ['You sleep on me at night. I have a pillow and a blanket.', 'a bed', 'a chair', 'a table'],
+  ['I am small and I buzz. I make honey. I can sting you.', 'a bee', 'a fly', 'an ant'],
+  ['I have keys but I open no doors. You press me to make music.', 'a piano', 'a drum', 'a lock'],
+  ['I come after the rain. I have many colors. I make a bow in the sky.', 'a rainbow', 'a cloud', 'a kite'],
+  ['I am very big and gray. I have a long trunk and big ears.', 'an elephant', 'a mouse', 'a hippo'],
+  ['You use me to clean your teeth. I have a handle. Put paste on me first.', 'a toothbrush', 'a comb', 'a spoon'],
+  ['I hop and I am green. I live near a pond. I catch flies with my tongue.', 'a frog', 'a duck', 'a snake'],
+  ['I have a shell on my back. I walk very slowly. I can hide inside my shell.', 'a turtle', 'a rabbit', 'a horse'],
+  ['I am cold and sweet. I come in a cone. Eat me fast or I will melt.', 'ice cream', 'soup', 'a cookie'],
+  ['I have two wheels and a seat. You push the pedals to make me go.', 'a bike', 'a car', 'a boat'],
+  ['I keep you dry in the rain. You hold me over your head. I open and close.', 'an umbrella', 'a hat', 'a towel'],
+  ['I live on a farm. I give you milk. I say moo.', 'a cow', 'a pig', 'a hen'],
+  ['I am made of glass. You look through me to see outside. I am in the wall.', 'a window', 'a door', 'a mirror'],
+  ['I fly in the sky. I have wings but I am not alive. People ride inside me.', 'an airplane', 'a bird', 'a train'],
+  ['You write with me. I have an eraser on one end. You can sharpen me.', 'a pencil', 'a crayon', 'a brush'],
+  ['I have eight legs. I spin a web. I catch bugs to eat.', 'a spider', 'an ant', 'a crab'],
+  ['I am a big cat. I have a mane. I roar very loud.', 'a lion', 'a tiger', 'a bear'],
+  ['I shine in the sky at night. I am very far away. I twinkle.', 'a star', 'a plane', 'a lamp'],
+  ['I am a room. You cook food in me. I have a stove and a sink.', 'the kitchen', 'the bedroom', 'the garden'],
+  ['I fall from the clouds. I make puddles. I help flowers grow.', 'rain', 'snow', 'wind'],
+  ['I work at a school. I help children learn to read and write.', 'a teacher', 'a doctor', 'a farmer'],
+  ['I live in the sea. I have eight arms. I can squirt ink.', 'an octopus', 'a whale', 'a shark']
+];
+
+/* ['o' opposite or 's' same meaning, word, right, wrong1, wrong2] */
+var WORDQ = [
+  ['o', 'hot', 'cold', 'warm', 'sun'], ['o', 'big', 'small', 'huge', 'tall'], ['o', 'up', 'down', 'over', 'high'],
+  ['o', 'happy', 'sad', 'glad', 'funny'], ['o', 'fast', 'slow', 'quick', 'run'], ['o', 'open', 'closed', 'door', 'wide'],
+  ['o', 'day', 'night', 'sun', 'noon'], ['o', 'wet', 'dry', 'rain', 'damp'], ['o', 'full', 'empty', 'big', 'heavy'],
+  ['o', 'hard', 'soft', 'rock', 'strong'], ['o', 'loud', 'quiet', 'noisy', 'shout'], ['o', 'old', 'new', 'gray', 'slow'],
+  ['o', 'clean', 'dirty', 'soap', 'neat'], ['o', 'early', 'late', 'soon', 'first'], ['o', 'light', 'dark', 'bright', 'lamp'],
+  ['o', 'heavy', 'light', 'big', 'strong'], ['o', 'tall', 'short', 'high', 'big'], ['o', 'asleep', 'awake', 'tired', 'bed'],
+  ['o', 'push', 'pull', 'shove', 'kick'], ['o', 'first', 'last', 'one', 'start'], ['o', 'top', 'bottom', 'up', 'roof'],
+  ['o', 'inside', 'outside', 'within', 'room'], ['o', 'always', 'never', 'often', 'daily'], ['o', 'win', 'lose', 'prize', 'score'],
+  ['o', 'laugh', 'cry', 'giggle', 'smile'], ['o', 'start', 'stop', 'begin', 'go'], ['o', 'rough', 'smooth', 'bumpy', 'hard'],
+  ['o', 'thick', 'thin', 'fat', 'wide'], ['o', 'near', 'far', 'close', 'next'],
+  ['s', 'big', 'large', 'small', 'thin'], ['s', 'happy', 'glad', 'sad', 'mad'], ['s', 'small', 'little', 'huge', 'long'],
+  ['s', 'fast', 'quick', 'slow', 'late'], ['s', 'begin', 'start', 'end', 'stop'], ['s', 'shout', 'yell', 'whisper', 'sing'],
+  ['s', 'smile', 'grin', 'frown', 'cry'], ['s', 'tired', 'sleepy', 'awake', 'hungry'], ['s', 'scared', 'afraid', 'brave', 'happy'],
+  ['s', 'gift', 'present', 'box', 'party'], ['s', 'jump', 'leap', 'sit', 'crawl'], ['s', 'angry', 'mad', 'glad', 'calm'],
+  ['s', 'close', 'shut', 'open', 'push'], ['s', 'look', 'see', 'hear', 'smell'], ['s', 'sick', 'ill', 'well', 'strong'],
+  ['s', 'road', 'street', 'river', 'bridge'], ['s', 'stone', 'rock', 'stick', 'sand'], ['s', 'kind', 'nice', 'mean', 'rude'],
+  ['s', 'silly', 'funny', 'sad', 'smart'], ['s', 'chilly', 'cold', 'hot', 'wet']
+];
+
+/* Three sentences that go together, then the one that does not belong. */
+var ODD = [
+  ['The cat drinks milk.', 'The cat naps in the sun.', 'The cat chases a mouse.', 'The bus is yellow.'],
+  ['I put on my coat.', 'I put on my hat.', 'I put on my boots.', 'The fish swims fast.'],
+  ['Apples are red.', 'Bananas are yellow.', 'Grapes are purple.', 'My bike has two wheels.'],
+  ['We swim at the beach.', 'We dig in the sand.', 'We look for shells.', 'Snow fell on the roof.'],
+  ['The cow says moo.', 'The pig rolls in mud.', 'The hen lays an egg.', 'The rocket went to space.'],
+  ['I brush my teeth.', 'I wash my face.', 'I comb my hair.', 'The lion roars.'],
+  ['It is dark outside.', 'The moon is out.', 'The stars shine.', 'I eat lunch at noon.'],
+  ['Dad cuts the carrots.', 'Dad stirs the soup.', 'Dad sets the table.', 'The kite is stuck in a tree.'],
+  ['The teacher reads a book.', 'We sit at our desks.', 'We write our names.', 'The whale lives in the sea.'],
+  ['The rain falls.', 'I jump in puddles.', 'I hold my umbrella.', 'The cake has six candles.'],
+  ['Birds fly south.', 'Leaves turn red and fall.', 'The air gets cold.', 'I lost my left sock.'],
+  ['The doctor looks in my ears.', 'She checks my heart.', 'She gives me a sticker.', 'Frogs eat flies.'],
+  ['We blow up balloons.', 'We sing a birthday song.', 'She opens her presents.', 'The truck needs gas.'],
+  ['The train is long.', 'It runs on a track.', 'It stops at the station.', 'Bees make honey.'],
+  ['I plant a seed.', 'I water it each day.', 'A green leaf comes up.', 'My shoes are too small.'],
+  ['The dog wags its tail.', 'The dog fetches a stick.', 'The dog barks at the door.', 'Soup is hot.'],
+  ['We put up the tent.', 'We make a camp fire.', 'We sleep in sleeping bags.', 'The clock is on the wall.'],
+  ['Snow covers the yard.', 'We make a snowman.', 'We wear warm mittens.', 'The bee lands on a flower.'],
+  ['The baby cries.', 'Mom picks her up.', 'Mom sings a soft song.', 'The bridge is very old.'],
+  ['I kick the ball.', 'I run down the field.', 'Our team scores a goal.', 'The bread is in the oven.'],
+  ['Fish have fins.', 'Fish live in water.', 'Fish have scales.', 'Horses eat hay.'],
+  ['We buy milk.', 'We buy eggs.', 'We pay at the front of the shop.', 'The owl sleeps all day.'],
+  ['I get into bed.', 'Dad reads me a story.', 'I close my eyes.', 'The bus was late this morning.'],
+  ['The fire truck is red.', 'It has a loud siren.', 'It carries a long ladder.', 'I like peach jam.'],
+  ['The spider spins a web.', 'A fly gets stuck.', 'The spider has eight legs.', 'We painted the fence white.'],
+  ['The sun is hot.', 'We drink cold water.', 'We sit in the shade.', 'I wear my thick winter coat.'],
+  ['The boat floats.', 'The waves go up and down.', 'We see a dolphin.', 'The cactus grows in the desert.'],
+  ['She mixes flour and eggs.', 'She pours it in a pan.', 'The cake bakes in the oven.', 'He rides his bike to the park.'],
+  ['The farmer feeds the hens.', 'He milks the cow.', 'He drives the tractor.', 'The pilot flies the plane.'],
+  ['I open my book.', 'I read the first page.', 'I turn the page.', 'I pour milk on my cereal.']
+];
+
+/* [text, what happens next, wrong1, wrong2] */
+var NEXT = [
+  ['Dark clouds filled the sky. Thunder boomed.', 'It starts to rain.', 'The sun gets hot.', 'It is time for bed.'],
+  ['Mia blew up the balloon. She kept blowing and blowing. It got bigger and bigger.', 'The balloon pops.', 'The balloon sings.', 'Mia falls asleep.'],
+  ['Ben put bread in the toaster. He pushed the handle down and waited.', 'The toast pops up.', 'The bread turns into cake.', 'Ben goes swimming.'],
+  ['The ice cube sat in the hot sun.', 'It melts.', 'It gets bigger.', 'It turns green.'],
+  ['Sam forgot to water his plant for many days.', 'The plant droops.', 'The plant grows tall.', 'The plant walks away.'],
+  ['The dog saw the cat. The cat saw the dog. The cat ran.', 'The dog chases the cat.', 'The dog reads a book.', 'The cat barks.'],
+  ['Lily put on her pajamas. She brushed her teeth. Mom read her a story.', 'Lily goes to sleep.', 'Lily goes to school.', 'Lily eats lunch.'],
+  ['Tom stacked the blocks higher and higher. The tower began to lean.', 'The tower falls down.', 'The tower flies away.', 'Tom eats the blocks.'],
+  ['The egg in the nest began to crack.', 'A baby bird comes out.', 'A puppy comes out.', 'The egg rolls to school.'],
+  ['Zoe was very hungry. Dad put a plate of pasta in front of her.', 'Zoe eats the pasta.', 'Zoe throws it away.', 'Zoe goes to bed.'],
+  ['Jack ran fast on the wet floor. His feet began to slide.', 'Jack slips and falls.', 'Jack wins a prize.', 'The floor dries up.'],
+  ['The bell rang. School was over. The children got their bags.', 'They go home.', 'They start a test.', 'They eat breakfast.'],
+  ['Emma planted a seed. She gave it water and sun every day.', 'A plant grows.', 'A fish grows.', 'The seed runs away.'],
+  ['The candle was lit. Ana took a big breath and blew.', 'The flame goes out.', 'The candle gets taller.', 'The room gets wet.'],
+  ['Max left his ice cream on the table. His dog jumped up on the chair.', 'The dog eats the ice cream.', 'The dog washes the table.', 'The ice cream barks.'],
+  ['Kim kicked the ball very hard. It flew toward the window.', 'The window breaks.', 'The ball turns into a bird.', 'Kim takes a nap.'],
+  ['Leo did not wear his coat. It was snowing outside.', 'Leo gets very cold.', 'Leo gets very hot.', 'The snow turns to sand.'],
+  ['The baby was tired. Mom rocked her and sang softly.', 'The baby falls asleep.', 'The baby rides a bike.', 'The baby cooks dinner.'],
+  ['Noah filled his cup to the very top. Then he kept pouring.', 'The juice spills.', 'The cup gets empty.', 'The juice turns to ice.'],
+  ['The light turned green. The cars were waiting.', 'The cars go.', 'The cars stay still.', 'The cars go backward.'],
+  ['Ella studied her spelling words every night. Today is the test.', 'Ella does well.', 'Ella forgets her name.', 'The test runs away.'],
+  ['The cat sat by the fish bowl. It lifted one paw.', 'The cat tries to catch the fish.', 'The fish catches the cat.', 'The cat does homework.'],
+  ['Owen stayed up very late. In the morning his alarm rang.', 'Owen is very tired.', 'Owen jumps out of bed, wide awake.', 'Owen goes back to last night.'],
+  ['Rosa dropped a glass on the hard floor.', 'The glass breaks.', 'The glass bounces back up.', 'The floor breaks.'],
+  ['The squirrel found a nut. Winter was coming soon.', 'It hides the nut for later.', 'It gives the nut to a cat.', 'It plants a flower.'],
+  ['Dad put the cookies in the hot oven. Then he forgot about them.', 'The cookies burn.', 'The cookies freeze.', 'The cookies get bigger and bigger.'],
+  ['Nia has a loose tooth. She wiggles it every day.', 'The tooth falls out.', 'The tooth gets tighter.', 'She grows a tail.'],
+  ['The sun went down. The street lights came on.', 'It gets dark.', 'It gets hot.', 'It is time for lunch.'],
+  ['Carlos sneezed and sneezed. His nose was red and he felt hot.', 'He stays home to rest.', 'He runs a race.', 'He goes swimming in the lake.'],
+  ['The wind blew hard. Maya let go of her kite string.', 'The kite flies away.', 'The kite lands in her hand.', 'The wind stops for good.']
+];
+
+/* [text, question, right, wrong1, wrong2] - the text never gives the reason, he has to work it out. */
+var WHY = [
+  ['Sam put on his boots and took his umbrella.', 'Why?', 'It is raining.', 'It is very hot.', 'He is going to bed.'],
+  ['Mia yawned. She rubbed her eyes and put her head on the desk.', 'Why did Mia put her head down?', 'She is tired.', 'She is hungry.', 'She is angry.'],
+  ['Ben held his nose when he walked past the trash can.', 'Why did Ben hold his nose?', 'The trash smells bad.', 'His nose is cold.', 'He wants to swim.'],
+  ['Lily fell off her bike. Now she has a bandage on her knee.', 'Why does Lily have a bandage?', 'She hurt her knee.', 'Her knee is dirty.', 'She likes stickers.'],
+  ['The dog scratched at the door and whined.', 'Why did the dog scratch the door?', 'It wants to go out.', 'It wants to sleep.', 'It is cleaning the door.'],
+  ['Dad turned on the lamp when the sun went down.', 'Why did Dad turn on the lamp?', 'It was getting dark.', 'It was too cold.', 'The lamp was lonely.'],
+  ['Zoe wore sunglasses and a big hat at the beach.', 'Why?', 'The sun is bright.', 'It is snowing.', 'She is hiding from a cat.'],
+  ['Tom drank three cups of water after the race.', 'Why did Tom drink so much?', 'He was thirsty.', 'He was sleepy.', 'He was cold.'],
+  ['The birds flew away when the cat jumped onto the fence.', 'Why did the birds fly away?', 'They were afraid of the cat.', 'They were hungry.', 'They wanted to play with the cat.'],
+  ['Emma whispered in the library.', 'Why did Emma whisper?', 'People are reading quietly.', 'She lost her voice.', 'The books are asleep.'],
+  ['Jack put his ice cream in the freezer.', 'Why?', 'So it will not melt.', 'So it gets warm.', 'So the dog can find it.'],
+  ['Ana looked both ways before she crossed the street.', 'Why did Ana look both ways?', 'To check for cars.', 'To find her shoes.', 'To see the moon.'],
+  ['Max wore a helmet when he rode his bike.', 'Why?', 'To keep his head safe.', 'To keep his hair dry.', 'To go faster.'],
+  ['Kim set her alarm clock before she went to sleep.', 'Why?', 'So she wakes up on time.', 'So she can hear music all night.', 'So the room stays warm.'],
+  ['The plants in the garden were brown and dry.', 'Why were the plants brown?', 'They did not get water.', 'They got too much water.', 'They were painted.'],
+  ['Leo shared his sandwich with Owen at lunch. Owen had left his lunch bag at home.', 'Why did Leo share?', 'Owen had no lunch.', 'Leo did not like sandwiches.', 'The teacher took it.'],
+  ['Mom put a blanket over the baby.', 'Why?', 'To keep the baby warm.', 'To hide the baby.', 'To wake the baby up.'],
+  ['Noah stood at the corner with his map. He turned it around and around.', 'Why did Noah look at the map?', 'He was lost.', 'He was hungry.', 'He was drawing it.'],
+  ['The fire fighters drove fast with the siren on.', 'Why did they drive fast?', 'There was a fire.', 'They were late for lunch.', 'They like loud sounds.'],
+  ['Ella saved her coins in a jar for many weeks.', 'Why did Ella save her coins?', 'She wants to buy something.', 'She does not like coins.', 'The jar was hungry.'],
+  ['Grandma put on her glasses to read the letter.', 'Why did Grandma put on glasses?', 'To see the words better.', 'To look pretty.', 'To keep her eyes warm.'],
+  ['The children clapped and cheered at the end of the show.', 'Why did they clap?', 'They liked the show.', 'Their hands were cold.', 'They wanted to go home.'],
+  ['Rosa played in the dirt all morning. She washed her hands before lunch.', 'Why did Rosa wash her hands?', 'Her hands were dirty.', 'Her hands were cold.', 'She likes soap bubbles.'],
+  ['Carlos left a carrot outside for the rabbit every night.', 'Why?', 'He wants to feed the rabbit.', 'He does not like carrots.', 'The carrot needs air.'],
+  ['The teacher turned off the lights and pressed play.', 'Why did the teacher turn off the lights?', 'To watch a movie.', 'To go home.', 'To play tag.'],
+  ['Nia opened all the windows. The kitchen was full of smoke.', 'Why?', 'To let the smoke out.', 'To let the birds in.', 'To hear the rain.'],
+  ['The farmer built a fence around his garden. Rabbits kept eating his lettuce.', 'Why did he build a fence?', 'To keep the rabbits out.', 'To keep the lettuce in.', 'To make the garden taller.'],
+  ['Maya tiptoed past the bedroom. Her baby brother was napping.', 'Why did Maya tiptoe?', 'So she would not wake him.', 'So she would be taller.', 'The floor was hot.'],
+  ['Dad pulled the car over and looked at the tire. It was flat.', 'Why did Dad stop the car?', 'The tire was flat.', 'He wanted to nap.', 'The car was hungry.'],
+  ['Ben packed a towel, a swimsuit and sunscreen.', 'Why did Ben pack these things?', 'He is going swimming.', 'He is going to school.', 'He is going to bed.']
+];
+
+/* A text, a question and three written answers. `cls` is the answer tile style. */
+function qaRound(text, q, right, w1, w2, cls, cheer) {
+  var html = '<p>' + esc(text) + '</p><p class="q">❓ ' + esc(q) + '</p>';
+  var choices = [{ html: esc(right), ok: true }, { html: esc(w1), ok: false }, { html: esc(w2), ok: false }];
+  return { kind: 'choice', prompt: html, promptClass: 'story', choices: choices, choiceClass: cls, hint: text + ' ' + q, right: cheer };
+}
+function riddleRound() {
+  var x = pickFresh('riddle', RIDDLES);
+  return qaRound(x[0], 'What am I?', x[1], x[2], x[3], 'word sm', cap(x[1]) + '! ' + pick(PRAISE));
+}
+function wordQRound() {
+  var x = pickFresh('wordq', WORDQ), opp = x[0] === 'o';
+  var q = opp ? 'What is the opposite of ' + x[1] + '?' : 'Which word means the same as ' + x[1] + '?';
+  var choices = [{ html: esc(x[2]), ok: true }, { html: esc(x[3]), ok: false }, { html: esc(x[4]), ok: false }];
+  return { kind: 'choice', prompt: esc(q), promptClass: 'sentence', choices: choices, choiceClass: 'word', hint: q,
+    right: opp ? 'The opposite of ' + x[1] + ' is ' + x[2] + '!' : cap(x[1]) + ' and ' + x[2] + ' mean the same!' };
+}
+function oddRound() {
+  var x = pickFresh('odd', ODD);
+  var choices = x.map(function (s, i) { return { html: esc(s), ok: i === 3 }; });
+  return { kind: 'choice', prompt: '\u{1F7E6}\u{1F7E6}\u{1F7E6}\u{1F7E7}', promptClass: 'say', choices: choices, choiceClass: 'sent',
+    hint: 'Three go together. Tap the one that does not belong.', right: x[3] + ' That one does not belong! ' + pick(PRAISE) };
+}
+function whatNextRound() {
+  var x = pickFresh('next', NEXT);
+  return qaRound(x[0], 'What happens next?', x[1], x[2], x[3], 'ans', x[1] + ' ' + pick(PRAISE));
+}
+function whyRound() {
+  var x = pickFresh('why', WHY);
+  return qaRound(x[0], x[1], x[2], x[3], x[4], 'ans', x[2] + ' Good thinking!');
+}
+
 function feelRound() {
   var f = pickFresh('feel', FEEL);
   var html = '<p>' + esc(f[0]) + '</p><p class="q">❓ ' + esc(f[1]) + '</p>';
@@ -1160,6 +1357,56 @@ function mysteryRound() {
       return steps;
     }
   };
+}
+/* Take away by doing it (Robert, 2026-11-21): he taps b apples away himself, then answers.
+   The answer tiles stay dimmed until he has taken b. After that, tapping the apples left counts them. */
+function tapTakeRound() {
+  var a = 3 + rnd(8), b = 1 + rnd(a - 1), c = a - b;
+  var html = '<div class="stack"><div class="apples five tapme">' + aps(a, 'ta') + '</div>' +
+    '<div class="eqline">' + a + ' &minus; ' + b + ' = <span class="n q" id="qn">?</span></div></div>';
+  var line = a + ' take away ' + b + '. Tap ' + plural(b, 'apple') + ' to take ' + (b === 1 ? 'it' : 'them') + ' away.';
+  var taken = 0, counted = 0;
+  function unlock() {
+    choicesEl.classList.remove('wait');
+    q$('.apples').forEach(function (n) { n.classList.remove('tapme'); });
+  }
+  var r = {
+    kind: 'choice', prompt: html, promptClass: 'feedp', choices: numChoices(c, 10), choiceClass: 'num',
+    say: line, teachSay: a + ' take away ' + b + '.', hint: line + ' Then count what is left.',
+    right: a + ' take away ' + b + ' is ' + c + '!', onRight: function () { fillQ(c); },
+    setup: function () {
+      choicesEl.classList.add('wait');
+      q$('.ta').forEach(function (ap) {
+        ap.addEventListener('pointerdown', function (ev) {
+          ev.preventDefault(); unlockAudio();
+          if (r.done || r.teaching || round !== r || ap.classList.contains('gone') || ap.classList.contains('counted')) return;
+          if (taken < b) {
+            taken++; ap.classList.add('gone'); sChomp(); restart(monsterEl, 'chomp');
+            if (taken < b) say(String(taken));
+            else {
+              unlock();
+              say(String(taken), function () { if (round === r && !r.done && !r.teaching) say('How many are left?'); });
+            }
+          } else {
+            counted++; ap.classList.add('counted'); ap.setAttribute('data-n', counted); sTap(); say(String(counted));
+          }
+        });
+      });
+    },
+    explain: function () {
+      var all = q$('.ta');
+      var steps = [{ fn: function () { clearMarks(); all.forEach(function (n) { n.classList.remove('gone'); }); taken = b; counted = c; unlock(); }, say: 'We start with ' + plural(a, 'apple') + '.' }];
+      steps.push({ say: 'Take away ' + b + '.' });
+      all.slice(c).forEach(function (n, i) {
+        steps.push({ fn: function () { n.classList.add('gone'); sChomp(); restart(monsterEl, 'chomp'); }, say: String(i + 1), rate: 1.15 });
+      });
+      steps.push({ say: 'Now count what is left.' });
+      steps = steps.concat(countSteps(all.slice(0, c), 1));
+      steps.push({ say: a + ' take away ' + b + ' is ' + c + '!' });
+      return steps;
+    }
+  };
+  return r;
 }
 function takeRound() {
   var a = 3 + rnd(8), b = 1 + rnd(a - 1), c = a - b;
@@ -1706,13 +1953,19 @@ var LEVELS = {
     { name: 'Little stories', need: 4, goal: 20, intro: 'Read the story. Then answer.', make: function () { return storyRound(STORIES, 'story'); } },
     { name: 'How do they feel?', need: 4, goal: 20, intro: 'Read it. How do they feel?', make: feelRound },
     { name: 'Story order (first, next, last)', need: 4, goal: 20, intro: 'What happened first? Put the story in order.', make: orderRound },
-    { name: 'Long stories, written answers', need: 4, goal: 30, intro: 'Read the story. Then read the answers.', make: longRound }
+    { name: 'Long stories, written answers', need: 4, goal: 30, intro: 'Read the story. Then read the answers.', make: longRound },
+    { name: 'Riddles (What am I?)', need: 4, goal: 20, intro: 'Read the clues. What am I?', make: riddleRound },
+    { name: 'Opposites and same words', need: 4, goal: 20, intro: 'Read the question. Tap the word.', make: wordQRound },
+    { name: 'Which one does not belong?', need: 4, goal: 20, intro: 'Three go together. Tap the one that does not belong.', make: oddRound },
+    { name: 'What happens next?', need: 4, goal: 20, intro: 'Read it. What happens next?', make: whatNextRound },
+    { name: 'Why? (work it out)', need: 4, goal: 20, intro: 'Read it. Then think. Why?', make: whyRound }
   ],
   math: [
     { name: 'Feed the monster (add pictures to 5)', need: 4, teach: 2, intro: 'Feed the monster!', make: feedRound },
     { name: 'Add with pictures (to 8)', need: 4, teach: 2, intro: '', make: addPicRound },
     { name: 'Add numbers (to 10)', need: 4, teach: 2, intro: '', make: addRound },
     { name: 'Mystery box (2 + ? = 5)', need: 4, teach: 2, intro: 'What is in the box?', make: mysteryRound },
+    { name: 'Take away with your finger', need: 4, teach: 1, intro: 'Take away!', make: tapTakeRound },
     { name: 'Take away', need: 4, teach: 0, intro: 'Take away!', make: takeRound }
   ],
   spell: [
@@ -1857,6 +2110,7 @@ function nextRound() {
   clearTimeout(hintTimer);
   stopSteps();
   speakerEl.classList.remove('wiggle');
+  choicesEl.classList.remove('wait');
   var ws = save.w[world];
   var lv = LEVELS[world][ws.level - 1];
   var r = lv.make();
@@ -1869,7 +2123,7 @@ function nextRound() {
     if (r.kind === 'build') renderBuild(r); else renderChoice(r);
     restart(stageEl, 'enter');
     renderDots();
-    var lead = (introPending && lv.intro ? lv.intro + ' ' : '') + 'Watch me first. ' + (r.say || '');
+    var lead = (introPending && lv.intro ? lv.intro + ' ' : '') + 'Watch me first. ' + (r.teachSay || r.say || '');
     introPending = false;
     setTimeout(function () { if (round === r) teach(r, lead); }, 300);
     return;
@@ -1925,6 +2179,7 @@ function renderChoice(r) {
     choicesEl.appendChild(b);
     c.el = b;
   });
+  if (r.setup) r.setup();
   if (r.countable) {
     var count = 0;
     Array.prototype.forEach.call(promptEl.querySelectorAll('.apples .ap'), function (ap) {
