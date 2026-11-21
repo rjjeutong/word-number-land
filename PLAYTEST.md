@@ -51,6 +51,10 @@ Copy the template, fill it in, keep the newest entry at the top.
 - Robert: "add more reading games and more difficult." Reading levels 14-18: riddles, opposites and same words, which one does not belong, what happens next, why.
 - To watch for: does he tap the apples without being shown, and are levels 14-18 hard enough?
 
+**Changed as a result (v0.8.0, same day)**
+- Robert: "adding more vibrant interactive educational games. use higgsfield to make it more lively." Added a Balloons world (pop the right balloon), a Thinking world (sort things into two baskets), the frog on the number line (Numbers levels 7-9) and a sticker book that fills up as he plays.
+- To watch for: which of the new games he goes back to, whether he opens the sticker book by himself, and whether he drags or taps in the sorting game.
+
 ### 2026-11-14 (night)  (build v0.5.0 on the iPad, Writing world)
 
 **Made him laugh / he liked**

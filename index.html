@@ -53,8 +53,68 @@
   .roundBtn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.12); }
   .smallBtn { width: 8vmin; height: 8vmin; max-width: 56px; max-height: 56px; font-size: min(4.5vmin, 30px); opacity: 0.7; }
   .starCount { font-size: min(7vmin, 52px); font-weight: 700; display: flex; align-items: center; gap: 1vmin; background: rgba(255,255,255,0.7); padding: 0.6vmin 3vmin; border-radius: 99px; }
-  #worlds { --t: min(27vw, 34vh); display: flex; gap: 4vmin; flex-wrap: wrap; justify-content: center; align-items: center; max-width: calc(var(--t) * 3 + 10vmin); margin-top: 8vmin; }
-  @media (orientation: portrait) { #worlds { --t: min(40vw, 23vh); max-width: calc(var(--t) * 2 + 6vmin); } }
+  .starCount img { height: min(8vmin, 60px); margin: -0.6vmin 0.6vmin -0.6vmin -1.4vmin; pointer-events: none; }
+  #bookBtn:active { transform: translateY(3px); }
+  #bookBtn.fresh img { animation: wiggle 1.2s ease-in-out infinite; }
+  #who.many .kid { width: 7vmin; height: 7vmin; font-size: min(4.4vmin, 34px); }
+  /* eight worlds: four across when the iPad is wide, two across when it is tall */
+  #worlds { --t: min(21vw, 31vh); display: flex; gap: 3.4vmin; flex-wrap: wrap; justify-content: center; align-items: center; max-width: calc(var(--t) * 4 + 14vmin); margin-top: 9vmin; }
+  @media (orientation: portrait) { #worlds { --t: min(40vw, 18.5vh); max-width: calc(var(--t) * 2 + 6vmin); } .homehelper { display: none; } }
+
+  /* sticker book */
+  #book { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 45; background: rgba(60, 40, 120, 0.55); }
+  #book.open { display: flex; }
+  .bookin { background: #fff8e6; border: 1vmin solid #ffd23f; border-radius: 5vmin; padding: 3vmin; width: min(92vw, 112vh); box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 2vmin; box-shadow: 0 1.6vmin 0 rgba(0,0,0,0.2); }
+  #bookGrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2vmin; width: 100%; }
+  .stkslot { position: relative; aspect-ratio: 1; border-radius: 3vmin; background: #f3e8c6; display: flex; align-items: center; justify-content: center; padding: 0; }
+  .stkslot img { width: 90%; height: 90%; object-fit: contain; pointer-events: none; }
+  .stkslot.no img { filter: brightness(0); opacity: 0.12; }
+  .stkslot .cnt { position: absolute; right: 4%; top: 4%; background: #ff5d73; color: #fff; font-weight: 800; font-size: min(3.4vmin, 26px); line-height: 1.5; border-radius: 99px; padding: 0 1.3vmin; }
+  .stkslot.bounce { animation: hop 0.5s ease-out; }
+
+  /* balloon pop */
+  .choices.sky { position: relative; display: block; align-self: stretch; flex: 1 1 auto; max-width: none; overflow: hidden; min-height: 30vh; }
+  .balloon { position: absolute; top: 100%; width: min(19vmin, 160px); height: min(33vmin, 278px); margin-left: calc(min(19vmin, 160px) / -2); padding: 0; background: none; animation: rise 12s linear infinite; }
+  @keyframes rise { from { top: 100%; } to { top: -42%; } }
+  .bin { display: block; position: relative; width: 100%; height: 100%; animation: sway 3.2s ease-in-out infinite; transition: transform 0.22s ease-out, opacity 0.22s; }
+  @keyframes sway { 0%, 100% { transform: translateX(-1.2vmin) rotate(-3deg); } 50% { transform: translateX(1.2vmin) rotate(3deg); } }
+  .bimg { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: url("art/balloon.webp") center / contain no-repeat; }
+  .btxt { position: absolute; left: 0; right: 0; top: 6%; height: 52%; display: flex; align-items: center; justify-content: center; font-size: min(9vmin, 74px); font-weight: 800; color: #fff; text-shadow: 0 0.4vmin 0 rgba(0,0,0,0.3), 0 0 1.2vmin rgba(0,0,0,0.25); }
+  .btxt.sm { font-size: min(4.5vmin, 37px); }
+  .prompt.popq { font-weight: 800; }
+  .balloon.out { opacity: 0.3; pointer-events: none; }
+  .balloon.hint .bin { filter: drop-shadow(0 0 2.2vmin #ffd23f) drop-shadow(0 0 0.8vmin #fff); }
+  .balloon.popped { pointer-events: none; }
+  .balloon.popped .bin { animation: none; transform: scale(1.7); opacity: 0; }
+
+  /* frog on the number line */
+  .pond { width: min(96vw, 150vh); box-sizing: border-box; padding: 13vmin 1.5vmin 8vmin; border-radius: 5vmin; background: linear-gradient(180deg, #a6e6ff, #4fb6f2); box-shadow: 0 1.2vmin 0 rgba(0,0,0,0.1), inset 0 0 0 0.8vmin rgba(255,255,255,0.35); touch-action: none; }
+  .pads { display: flex; position: relative; }
+  .pad { position: relative; flex: 1 1 0; min-width: 0; aspect-ratio: 1.3; background: url("art/lilypad.webp") center / 96% auto no-repeat; display: flex; align-items: center; justify-content: center; }
+  .pad span { position: absolute; left: 0; right: 0; top: 100%; text-align: center; line-height: 1.3; font-size: min(5.2vmin, 46px); font-weight: 800; color: #fff; text-shadow: 0 0.3vmin 0 rgba(0,0,0,0.4), 0 0 1vmin rgba(0,0,0,0.3); }
+  .pad.hint { animation: wiggle 0.9s ease-in-out infinite; filter: drop-shadow(0 0 1.6vmin #ffd23f) drop-shadow(0 0 0.6vmin #ffd23f); }
+  .pad.right { filter: drop-shadow(0 0 1.6vmin #fff) drop-shadow(0 0 0.8vmin #2ecc71); }
+  .frog { position: absolute; bottom: 38%; width: 11.5%; transform: translateX(-50%); transition: left 0.26s ease-in-out; pointer-events: none; }
+  .frog.drag { transition: none; }
+  .frog img { width: 100%; display: block; filter: drop-shadow(0 0.8vmin 0.4vmin rgba(0,0,0,0.2)); }
+  .frog.hop img { animation: froghop 0.3s ease-out; }
+  @keyframes froghop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5vmin) scale(1.06, 0.94); } }
+
+  /* sorting */
+  #prompt.sortp { z-index: 3; padding: 1.5vmin 7vmin; touch-action: none; }
+  .sitem { display: flex; flex-direction: column; align-items: center; touch-action: none; }
+  .sitem.popin { animation: popIn 0.35s ease-out; }
+  .sem { font-size: min(16vmin, 132px); line-height: 1.15; }
+  .swd { font-size: min(6.4vmin, 52px); font-weight: 700; }
+  .swd.big { font-size: min(17vmin, 140px); font-weight: 800; color: #e2571e; line-height: 1.1; }
+  .choices.baskets { gap: 8vmin; align-items: flex-end; flex-wrap: nowrap; }
+  .basket { position: relative; width: min(40vw, 40vh); height: min(38vw, 38vh); padding: 0; background: url("art/basket.webp") center bottom / auto 86% no-repeat; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
+  .blab { background: rgba(255,255,255,0.94); border-radius: 99px; padding: 0.6vmin 3vmin; font-size: min(4.4vmin, 36px); font-weight: 700; white-space: nowrap; display: flex; align-items: center; gap: 1.2vmin; box-shadow: 0 0.6vmin 0 rgba(0,0,0,0.12); position: relative; z-index: 1; }
+  .bi { font-size: 1.3em; line-height: 1; }
+  .bgot { position: absolute; left: 14%; right: 14%; bottom: 34%; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4vmin; font-size: min(5.6vmin, 46px); font-weight: 800; line-height: 1; color: #fff; text-shadow: 0 0.3vmin 0 rgba(0,0,0,0.4); pointer-events: none; }
+  .basket.hint { animation: wiggle 0.9s ease-in-out infinite; }
+  .basket.hint .blab { box-shadow: 0 0 0 0.8vmin #ffd23f; }
+  .basket.bump { animation: popIn 0.3s ease-out; }
   .world {
     width: var(--t); height: var(--t); border-radius: 6vmin; color: #fff;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.2vmin;
@@ -251,7 +311,7 @@
 <section id="home" class="screen on">
   <div id="homeTop">
     <button id="hubBtn" class="roundBtn" type="button" aria-label="All games" style="visibility:hidden">&#127968;</button>
-    <div id="homeMid"><div id="who"></div><div class="starCount"><span>&#11088;</span><span id="starHome">0</span></div></div>
+    <div id="homeMid"><div id="who"></div><button id="bookBtn" class="starCount" type="button" aria-label="Sticker book"><img src="art/icon-book.webp" alt=""><span>&#11088;</span><span id="starHome">0</span></button></div>
     <button id="gearBtn" class="roundBtn smallBtn" type="button" aria-label="Grown-ups">&#9881;&#65039;</button>
   </div>
   <div id="worlds"></div>
@@ -273,6 +333,7 @@
 </section>
 
 <div id="party"><div class="trophy">&#127942;</div><div class="stars">&#11088;&#11088;&#11088;</div></div>
+<div id="book"><div class="bookin"><div id="bookGrid"></div><button id="bookClose" class="roundBtn" type="button" aria-label="Back">&#127968;</button></div></div>
 <canvas id="fx"></canvas>
 
 <div id="settings">
@@ -297,7 +358,7 @@
 (function () {
 'use strict';
 
-var VERSION = '0.7.0';
+var VERSION = '0.8.0';
 var SAVE_KEY = 'wordnumberland-v1';
 
 /* ================= helpers ================= */
@@ -328,7 +389,11 @@ var WORLDS = [
   { k: 'time', label: 'Time', icon: '\u{1F550}', deco: '3:00', start: 1, grad: 'linear-gradient(160deg,#7fd8ff,#3a86ff)', bg: 'linear-gradient(180deg,#dcefff,#fff6e0)',
     cheer: ['Level up! You can tell the time!', 'Wow! Level up! Tick tock, great job!'] },
   { k: 'write', label: 'Writing', icon: '\u{1F58D}\uFE0F', deco: 'abc', start: 1, grad: 'linear-gradient(160deg,#ffb36b,#f07b1d)', bg: 'linear-gradient(180deg,#ffe6cc,#fff6e0)',
-    cheer: ['Level up! You are a super writer!', 'Wow! Level up! Beautiful writing!'] }
+    cheer: ['Level up! You are a super writer!', 'Wow! Level up! Beautiful writing!'] },
+  { k: 'pop', label: 'Balloons', icon: '\u{1F388}', deco: '', start: 1, grad: 'linear-gradient(160deg,#ff9fc0,#f0437a)', bg: 'linear-gradient(180deg,#bfe6ff,#fff6e0)',
+    cheer: ['Level up! Pop, pop, pop!', 'Wow! Level up! You are a balloon popper!'] },
+  { k: 'sort', label: 'Thinking', icon: '\u{1F9FA}', deco: '', start: 1, grad: 'linear-gradient(160deg,#c4ea7a,#6fb52c)', bg: 'linear-gradient(180deg,#e4f6cf,#fff6e0)',
+    cheer: ['Level up! You are a super sorter!', 'Wow! Level up! Great thinking!'] }
 ];
 function worldOf(k) { for (var i = 0; i < WORLDS.length; i++) if (WORLDS[i].k === k) return WORLDS[i]; return WORLDS[0]; }
 
@@ -344,10 +409,12 @@ function freshKid(face, first) {
     var lv = first ? W.start : 1;
     w[W.k] = { level: lv, streak: 0, recent: [], right: 0, total: 0, best: lv, teach: W.k === 'math' ? 2 : (W.k === 'write' ? 1 : 0), lvRight: 0 };
   });
-  return { face: face, name: '', stars: 0, w: w, mathV: 3 };
+  return { face: face, name: '', stars: 0, w: w, mathV: 3, stickers: {}, newStk: false };
 }
 function readKid(s, d) {
   if (typeof s.stars === 'number') d.stars = s.stars;
+  if (s.stickers && typeof s.stickers === 'object') for (var id in s.stickers) if (s.stickers[id] > 0) d.stickers[id] = Math.floor(s.stickers[id]);
+  d.newStk = !!s.newStk;
   if (typeof s.face === 'string' && s.face) d.face = s.face;
   if (typeof s.name === 'string') d.name = s.name.slice(0, 12);
   WORLDS.forEach(function (W) { var k = W.k;
@@ -1938,6 +2005,346 @@ function renderTrace(r) {
   r.nextPoints = function () { var st = cur(), b = cv.getBoundingClientRect(); return st ? st.pts.map(function (q) { var z = P(glyphs[r.gi], q); return { x: b.left + z.x, y: b.top + z.y }; }) : []; };
 }
 
+/* ================= v0.8.0: balloon pop, frog number line, sorting, stickers ================= */
+
+/* --- balloon pop: the balloons float up for ever, so there is no hurry. Pop the right one. --- */
+var HUES = [0, 45, 110, 200, 265, 310];
+/* o.answers: strings, the first one is right. */
+function popRound(o) {
+  return {
+    kind: 'pop', prompt: o.prompt, promptClass: 'say popq', say: o.say, hint: o.say, right: o.right, sayRate: o.sayRate, small: o.small,
+    choices: o.answers.map(function (a, i) { return { html: esc(String(a)), ok: i === 0 }; })
+  };
+}
+function nearNums(ans, lo, hi, n) {
+  var set = [ans], pool = [];
+  for (var d = 1; d <= 3; d++) pool.push(ans + d, ans - d);
+  pool = shuffle(pool);
+  for (var i = 0; i < pool.length && set.length < n; i++) if (pool[i] >= lo && pool[i] <= hi) set.push(pool[i]);
+  for (var g = 0; set.length < n && g < 200; g++) { var x = lo + rnd(hi - lo + 1); if (set.indexOf(x) < 0) set.push(x); }
+  return set;
+}
+function popNumberRound() {
+  var n = 1 + rnd(20);
+  return popRound({ prompt: '\u{1F442}', say: 'Pop the number ' + n + '.', right: n + '! ' + pick(PRAISE), answers: nearNums(n, 1, 20, 5) });
+}
+function popWordRound() {
+  var g = pickFresh('popw', SIGHT), t = pick(g), ans = [t];
+  shuffle(g).forEach(function (w) { if (ans.indexOf(w) < 0) ans.push(w); });
+  for (var i = 0; ans.length < 5 && i < 60; i++) { var w = pick(pick(SIGHT)); if (ans.indexOf(w) < 0) ans.push(w); }
+  return popRound({ prompt: '\u{1F442}', say: 'Pop the word: ' + t + '.', right: t + '! ' + pick(PRAISE), answers: ans.slice(0, 5), sayRate: 0.85, small: true });
+}
+function popAddRound(max) {
+  var c = 3 + rnd(max - 2), a = 1 + rnd(c - 1), b = c - a;
+  return popRound({ prompt: a + ' + ' + b, say: a + ' plus ' + b + '. Pop the answer.', right: a + ' plus ' + b + ' is ' + c + '!', answers: nearNums(c, 0, max + 2, 5) });
+}
+function popTakeRound() {
+  var a = 3 + rnd(8), b = 1 + rnd(a - 1), c = a - b;
+  return popRound({ prompt: a + ' − ' + b, say: a + ' take away ' + b + '. Pop the answer.', right: a + ' take away ' + b + ' is ' + c + '!', answers: nearNums(c, 0, 10, 5) });
+}
+function popWordQRound() {
+  var x = pickFresh('popq', WORDQ), opp = x[0] === 'o', ans = [x[2], x[3], x[4]];
+  for (var i = 0; ans.length < 5 && i < 60; i++) { var w = pick(WORDQ)[2]; if (ans.indexOf(w) < 0 && w !== x[1]) ans.push(w); }
+  return popRound({
+    prompt: esc(x[1]) + (opp ? ' ≠ ?' : ' = ?'), small: true,
+    say: opp ? 'Pop the opposite of ' + x[1] + '.' : 'Pop the word that means the same as ' + x[1] + '.',
+    right: opp ? 'The opposite of ' + x[1] + ' is ' + x[2] + '!' : cap(x[1]) + ' and ' + x[2] + ' mean the same!', answers: ans
+  });
+}
+function renderPop(r) {
+  promptEl.className = 'prompt ' + r.promptClass;
+  promptEl.innerHTML = r.prompt;
+  choicesEl.className = 'choices sky';
+  choicesEl.innerHTML = '';
+  var list = shuffle(r.choices), n = list.length, hues = shuffle(HUES);
+  var phase = shuffle(list.map(function (c, i) { return i; }));
+  list.forEach(function (c, i) {
+    var b = el('button', 'balloon', '<span class="bin"><span class="bimg" style="filter:hue-rotate(' + hues[i % hues.length] + 'deg)"></span><span class="btxt' + (r.small ? ' sm' : '') + '">' + c.html + '</span></span>');
+    b.type = 'button';
+    b.style.left = ((i + 0.5) * 100 / n) + '%';
+    var dur = 10 + rnd(6);
+    b.style.animationDuration = dur + 's';
+    /* a negative delay starts each balloon part of the way up, so some are on screen at once */
+    b.style.animationDelay = (-dur * (phase[i] + 0.35) / n) + 's';
+    b.addEventListener('pointerdown', function (ev) { ev.preventDefault(); onPop(r, c, b); });
+    choicesEl.appendChild(b);
+    c.el = b;
+  });
+}
+function onPop(r, c, b) {
+  if (busy || r.done || round !== r || b.classList.contains('out')) return;
+  unlockAudio();
+  if (c.ok) {
+    r.done = true;
+    burstFrom(b, 36);
+    b.classList.add('popped');
+    sPop(); sDing();
+    cheerHelper();
+    roundDone(r, b);
+  } else {
+    r.firstTry = false; r.wrong++;
+    sBoing();
+    b.classList.add('out');
+    if (r.wrong >= 2) r.choices.forEach(function (x) { if (x.ok && x.el) x.el.classList.add('hint'); });
+  }
+}
+
+/* --- frog on the number line: tap (or drag the frog to) the pad where it lands. It hops there
+   one pad at a time while the voice counts the hops, so he sees if it was too many or too few. --- */
+function frogRound(op) {
+  if (op === '?') op = rnd(2) ? '+' : '-';
+  var a, b, c;
+  if (op === '+') { c = 2 + rnd(9); b = 1 + rnd(Math.min(c, 6)); a = c - b; }
+  else { a = 2 + rnd(9); b = 1 + rnd(Math.min(a, 6)); c = a - b; }
+  var dir = op === '+' ? 1 : -1;
+  var words = op === '+' ? a + ' plus ' + b : a + ' take away ' + b;
+  var way = dir > 0 ? 'forward ' : 'back ';
+  var line = words + '. Start at ' + a + '. Hop ' + way + b + '.';
+  var r = {
+    kind: 'frog', a: a, b: b, c: c, choices: [],
+    prompt: '<div class="eqline">' + a + ' ' + (dir > 0 ? '+' : '&minus;') + ' ' + b + ' = <span class="n q" id="qn">?</span></div>', promptClass: 'feedp',
+    say: line, teachSay: words + '.', hint: line + ' Tap where the frog lands.', right: words + ' is ' + c + '!',
+    explain: function () {
+      var steps = [{ fn: function () { frogClear(r); frogTo(r, a, false); }, say: 'The frog starts at ' + a + '.' }, { say: 'Hop ' + way + b + '.' }];
+      for (var i = 1; i <= b; i++) (function (i) {
+        steps.push({ fn: function () { frogTo(r, a + dir * i, true); }, say: String(i), rate: 1.15 });
+      })(i);
+      steps.push({ say: 'The frog lands on ' + c + '.' });
+      steps.push({ fn: function () { frogTo(r, a, false); r.pads[c].classList.add('hint'); }, wait: 500 });
+      return steps;
+    }
+  };
+  return r;
+}
+function frogTo(r, k, hop) {
+  r.frog.style.left = ((k + 0.5) * 100 / 11) + '%';
+  if (hop) { restart(r.frog, 'hop'); sPop(); }
+}
+function frogClear(r) { r.pads.forEach(function (p) { p.classList.remove('hint'); p.classList.remove('right'); }); }
+function frogLocked(r) { return busy || r.done || r.teaching || r.moving || round !== r; }
+function renderFrog(r) {
+  promptEl.className = 'prompt ' + r.promptClass;
+  promptEl.innerHTML = r.prompt;
+  choicesEl.className = 'choices';
+  choicesEl.innerHTML = '';
+  var h = '';
+  for (var k = 0; k <= 10; k++) h += '<div class="pad"><span>' + k + '</span></div>';
+  var pond = el('div', 'pond', '<div class="pads">' + h + '<div class="frog"><img src="art/frog.webp" alt=""></div></div>');
+  choicesEl.appendChild(pond);
+  var padsEl = pond.querySelector('.pads');
+  r.pads = Array.prototype.slice.call(pond.querySelectorAll('.pad'));
+  r.frog = pond.querySelector('.frog');
+  frogTo(r, r.a, false);
+  var down = false, onFrog = false;
+  function padAt(x) { var rc = padsEl.getBoundingClientRect(); return Math.max(0, Math.min(10, Math.floor((x - rc.left) / rc.width * 11))); }
+  pond.addEventListener('pointerdown', function (ev) {
+    ev.preventDefault(); unlockAudio();
+    if (frogLocked(r)) return;
+    down = true;
+    try { pond.setPointerCapture(ev.pointerId); } catch (e) {}
+    var fr = r.frog.getBoundingClientRect();
+    onFrog = ev.clientX >= fr.left - 12 && ev.clientX <= fr.right + 12;
+  });
+  pond.addEventListener('pointermove', function (ev) {
+    if (!down || !onFrog || frogLocked(r)) return;
+    var rc = padsEl.getBoundingClientRect();
+    r.frog.classList.add('drag');
+    r.frog.style.left = Math.max(3, Math.min(97, (ev.clientX - rc.left) / rc.width * 100)) + '%';
+  });
+  pond.addEventListener('pointerup', function (ev) {
+    if (!down) return;
+    down = false;
+    r.frog.classList.remove('drag');
+    if (frogLocked(r)) return;
+    frogTo(r, r.a, false);
+    frogTry(r, padAt(ev.clientX));
+  });
+  pond.addEventListener('pointercancel', function () {
+    down = false; r.frog.classList.remove('drag');
+    if (!frogLocked(r)) frogTo(r, r.a, false);
+  });
+}
+function frogTry(r, k) {
+  if (frogLocked(r) || k === r.a) return;
+  r.moving = true;
+  frogClear(r);
+  var dir = k > r.a ? 1 : -1, hops = Math.abs(k - r.a), steps = [{ wait: 280 }];
+  for (var i = 1; i <= hops; i++) (function (i) {
+    steps.push({ fn: function () { frogTo(r, r.a + dir * i, true); }, say: String(i), rate: 1.2, pause: 60 });
+  })(i);
+  runSteps(steps, function () {
+    if (round !== r) return;
+    r.moving = false;
+    if (k === r.c) {
+      r.done = true;
+      r.pads[k].classList.add('right');
+      sDing(); fillQ(r.c);
+      burstFrom(r.frog, 30);
+      feedMonster();
+      roundDone(r, r.frog);
+    } else {
+      r.firstTry = false; r.wrong++;
+      sBoing();
+      setTimeout(function () { if (round === r && !r.done && !r.teaching) frogTo(r, r.a, false); }, 450);
+      if (!r.explained) {
+        r.explained = true;
+        setTimeout(function () { if (round === r && !r.done) teach(r, 'Let me show you.'); }, 900);
+      } else r.pads[r.c].classList.add('hint');
+    }
+  });
+}
+
+/* --- sorting: one thing at a time, drag it into the right basket (or tap the basket). --- */
+function E(code, word) { return [code, word]; }
+function numItems(list) { return list.map(function (n) { return ['', String(n)]; }); }
+var SORTS = {
+  food: { q: 'Is it an animal, or is it food?', a: ['\u{1F43E}', 'animals'], b: ['\u{1F37D}️', 'food'],
+    A: [E('\u{1F436}', 'dog'), E('\u{1F431}', 'cat'), E('\u{1F42E}', 'cow'), E('\u{1F437}', 'pig'), E('\u{1F438}', 'frog'), E('\u{1F981}', 'lion'), E('\u{1F434}', 'horse'), E('\u{1F986}', 'duck'), E('\u{1F41F}', 'fish'), E('\u{1F41D}', 'bee'), E('\u{1F43B}', 'bear'), E('\u{1F411}', 'sheep')],
+    B: [E('\u{1F34E}', 'apple'), E('\u{1F35E}', 'bread'), E('\u{1F9C0}', 'cheese'), E('\u{1F355}', 'pizza'), E('\u{1F34C}', 'banana'), E('\u{1F95A}', 'egg'), E('\u{1F955}', 'carrot'), E('\u{1F370}', 'cake'), E('\u{1F347}', 'grapes'), E('\u{1F36A}', 'cookie'), E('\u{1F33D}', 'corn'), E('\u{1F372}', 'soup')] },
+  wear: { q: 'Do you wear it, or do you ride it?', a: ['\u{1F9E5}', 'wear'], b: ['\u{1F6B2}', 'ride'],
+    A: [E('\u{1F9E2}', 'cap'), E('\u{1F45F}', 'shoe'), E('\u{1F9E6}', 'socks'), E('\u{1F9E5}', 'coat'), E('\u{1F457}', 'dress'), E('\u{1F9E4}', 'gloves'), E('\u{1F9E3}', 'scarf'), E('\u{1F455}', 'shirt'), E('\u{1F456}', 'pants'), E('\u{1F97E}', 'boot')],
+    B: [E('\u{1F697}', 'car'), E('\u{1F68C}', 'bus'), E('\u{1F6B2}', 'bike'), E('\u{1F686}', 'train'), E('⛵', 'boat'), E('✈️', 'plane'), E('\u{1F69A}', 'truck'), E('\u{1F6F4}', 'scooter'), E('\u{1F680}', 'rocket'), E('\u{1F69C}', 'tractor')] },
+  water: { q: 'Does it live on land, or in the water?', a: ['\u{1F333}', 'land'], b: ['\u{1F30A}', 'water'],
+    A: [E('\u{1F981}', 'lion'), E('\u{1F434}', 'horse'), E('\u{1F42E}', 'cow'), E('\u{1F430}', 'rabbit'), E('\u{1F418}', 'elephant'), E('\u{1F435}', 'monkey'), E('\u{1F992}', 'giraffe'), E('\u{1F437}', 'pig'), E('\u{1F411}', 'sheep'), E('\u{1F42F}', 'tiger')],
+    B: [E('\u{1F41F}', 'fish'), E('\u{1F433}', 'whale'), E('\u{1F988}', 'shark'), E('\u{1F419}', 'octopus'), E('\u{1F42C}', 'dolphin'), E('\u{1F980}', 'crab'), E('\u{1F990}', 'shrimp'), E('\u{1F991}', 'squid'), E('\u{1F99E}', 'lobster')] },
+  hot: { q: 'Is it hot, or is it cold?', a: ['\u{1F525}', 'hot'], b: ['❄️', 'cold'],
+    A: [E('☀️', 'sun'), E('\u{1F525}', 'fire'), E('\u{1F372}', 'soup'), E('☕', 'tea'), E('\u{1F30B}', 'volcano'), E('\u{1F56F}️', 'candle'), E('\u{1F3DC}️', 'desert'), E('\u{1F336}️', 'pepper')],
+    B: [E('❄️', 'snow'), E('\u{1F9CA}', 'ice'), E('⛄', 'snowman'), E('\u{1F366}', 'ice cream'), E('\u{1F367}', 'snow cone'), E('\u{1F3D4}️', 'snowy hill'), E('\u{1F6F7}', 'sled'), E('⛸️', 'ice skate')] },
+  fly: { q: 'Can it fly, or not?', a: ['☁️', 'can fly'], b: ['\u{1F6AB}', 'can not fly'],
+    A: [E('\u{1F426}', 'bird'), E('\u{1F41D}', 'bee'), E('✈️', 'plane'), E('\u{1F98B}', 'butterfly'), E('\u{1F680}', 'rocket'), E('\u{1F681}', 'helicopter'), E('\u{1FA81}', 'kite'), E('\u{1F987}', 'bat'), E('\u{1F985}', 'eagle'), E('\u{1F388}', 'balloon')],
+    B: [E('\u{1F436}', 'dog'), E('\u{1F41F}', 'fish'), E('\u{1F697}', 'car'), E('\u{1F422}', 'turtle'), E('\u{1FA91}', 'chair'), E('\u{1F333}', 'tree'), E('\u{1F437}', 'pig'), E('\u{1F45F}', 'shoe'), E('\u{1F3E0}', 'house'), E('\u{1F40C}', 'snail')] },
+  alive: { q: 'Is it alive, or not alive?', a: ['\u{1F331}', 'alive'], b: ['\u{1F9F1}', 'not alive'],
+    A: [E('\u{1F431}', 'cat'), E('\u{1F333}', 'tree'), E('\u{1F338}', 'flower'), E('\u{1F438}', 'frog'), E('\u{1F426}', 'bird'), E('\u{1F41F}', 'fish'), E('\u{1F9D2}', 'child'), E('\u{1F41D}', 'bee'), E('\u{1F335}', 'cactus'), E('\u{1F40C}', 'snail')],
+    B: [E('\u{1FAA8}', 'rock'), E('\u{1F697}', 'car'), E('\u{1FA91}', 'chair'), E('⚽', 'ball'), E('\u{1F4D5}', 'book'), E('\u{1F964}', 'cup'), E('\u{1F511}', 'key'), E('⏰', 'clock'), E('\u{1F4F1}', 'phone'), E('\u{1F944}', 'spoon')] },
+  ten: { q: 'Is it less than ten, or more than ten?', a: ['⬇️', 'less than 10'], b: ['⬆️', 'more than 10'],
+    A: numItems([1, 2, 3, 4, 5, 6, 7, 8, 9]), B: numItems([11, 12, 13, 14, 15, 16, 17, 18, 19, 20]) },
+  even: { q: 'Is it even, or is it odd? Even numbers end in 0, 2, 4, 6 or 8.', a: ['\u{1F46B}', 'even'], b: ['☝️', 'odd'],
+    A: numItems([2, 4, 6, 8, 10, 12, 14, 16, 18, 20]), B: numItems([1, 3, 5, 7, 9, 11, 13, 15, 17, 19]) }
+};
+function sortRound(key) {
+  var S = SORTS[key], items = [];
+  shuffle(S.A).slice(0, 3).forEach(function (t) { items.push({ t: t, side: 0 }); });
+  shuffle(S.B).slice(0, 3).forEach(function (t) { items.push({ t: t, side: 1 }); });
+  return { kind: 'sort', S: S, items: shuffle(items).slice(0, 5), say: S.q, hint: S.q, right: pick(PRAISE) + ' All sorted!' };
+}
+function renderSort(r) {
+  promptEl.className = 'prompt sortp';
+  choicesEl.className = 'choices baskets';
+  choicesEl.innerHTML = '';
+  r.bk = [r.S.a, r.S.b].map(function (lab, i) {
+    var b = el('button', 'basket', '<span class="blab"><span class="bi">' + lab[0] + '</span>' + esc(lab[1]) + '</span><span class="bgot"></span>');
+    b.type = 'button';
+    b.addEventListener('pointerdown', function (ev) { ev.preventDefault(); sortDrop(r, i); });
+    choicesEl.appendChild(b);
+    return b;
+  });
+  r.pos = 0; r.wrongHere = 0;
+  sortShow(r);
+}
+function sortShow(r) {
+  var it = r.items[r.pos];
+  promptEl.innerHTML = '<div class="sitem">' + (it.t[0] ? '<span class="sem">' + it.t[0] + '</span>' : '') + '<span class="swd' + (it.t[0] ? '' : ' big') + '">' + esc(it.t[1]) + '</span></div>';
+  r.hint = it.t[1] + '. ' + r.S.q;
+  var item = promptEl.querySelector('.sitem');
+  restart(item, 'popin');
+  var sx = 0, sy = 0, on = false, moved = false;
+  item.addEventListener('pointerdown', function (ev) {
+    ev.preventDefault(); unlockAudio();
+    if (busy || r.done || round !== r) return;
+    on = true; moved = false; sx = ev.clientX; sy = ev.clientY;
+    item.classList.remove('popin'); item.classList.remove('shake');
+    try { item.setPointerCapture(ev.pointerId); } catch (e) {}
+  });
+  item.addEventListener('pointermove', function (ev) {
+    if (!on) return;
+    var dx = ev.clientX - sx, dy = ev.clientY - sy;
+    if (Math.abs(dx) + Math.abs(dy) > 14) moved = true;
+    item.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(0.85)';
+  });
+  item.addEventListener('pointerup', function (ev) {
+    if (!on) return;
+    on = false;
+    if (!moved) { item.style.transform = ''; say(it.t[1]); return; }
+    var best = -1;
+    r.bk.forEach(function (b, i) {
+      var rc = b.getBoundingClientRect();
+      if (ev.clientX >= rc.left - 30 && ev.clientX <= rc.right + 30 && ev.clientY >= rc.top - 60) best = i;
+    });
+    if (best < 0) { item.style.transform = ''; return; }
+    sortDrop(r, best);
+  });
+  item.addEventListener('pointercancel', function () { on = false; item.style.transform = ''; });
+}
+function sortDrop(r, i) {
+  if (busy || r.done || round !== r) return;
+  unlockAudio();
+  var it = r.items[r.pos], item = promptEl.querySelector('.sitem'), glyph = it.t[0] || esc(it.t[1]);
+  if (it.side === i) {
+    sPop();
+    r.bk.forEach(function (b) { b.classList.remove('hint'); });
+    r.bk[i].querySelector('.bgot').insertAdjacentHTML('beforeend', '<span>' + glyph + '</span>');
+    restart(r.bk[i], 'bump');
+    r.pos++; r.wrongHere = 0;
+    if (r.pos >= r.items.length) {
+      r.done = true;
+      promptEl.innerHTML = '<div class="sitem"><span class="sem">✅</span></div>';
+      sDing();
+      burstFrom(choicesEl, 40);
+      cheerHelper();
+      roundDone(r, choicesEl);
+    } else sortShow(r);
+  } else {
+    r.firstTry = false; r.wrongHere++;
+    sBoing();
+    item.style.transform = '';
+    restart(item, 'shake');
+    if (r.wrongHere >= 2) r.bk[it.side].classList.add('hint');
+  }
+}
+
+/* --- stickers: one for every level-up and for every 25 stars. Each player has their own book. --- */
+var STICKERS = [
+  ['rocket', 'a rocket'], ['dino', 'a dinosaur'], ['unicorn', 'a unicorn'], ['robot', 'a robot'], ['rainbow', 'a rainbow'],
+  ['ship', 'a pirate ship'], ['cat', 'a space cat'], ['dog', 'a super dog'], ['icecream', 'an ice cream'], ['sun', 'a sunny sun'],
+  ['penguin', 'a penguin'], ['balloon', 'a hot air balloon'], ['turtle', 'a sea turtle'], ['car', 'a racing car'], ['trophy', 'a trophy']
+];
+var STICKER_EVERY = 25;
+function stickerCount() { var n = 0; for (var k in save.stickers) n += save.stickers[k]; return n; }
+/* New ones first. Once he has them all, he gets seconds, and the book shows how many. */
+function awardSticker(cb) {
+  var fresh = STICKERS.filter(function (s) { return !save.stickers[s[0]]; });
+  var s = pick(fresh.length ? fresh : STICKERS);
+  save.stickers[s[0]] = (save.stickers[s[0]] || 0) + 1;
+  save.newStk = true;
+  persist();
+  partyEl.classList.add('on');
+  partyEl.querySelector('.trophy').innerHTML = '<img src="art/st-' + s[0] + '.webp" alt="">';
+  partyEl.querySelector('.stars').innerHTML = '';
+  restart(partyEl.querySelector('.trophy'), 'trophy');
+  sFanfare();
+  burst(window.innerWidth / 2, window.innerHeight / 2, 50, 13);
+  var r = round, shown = Date.now();
+  say('A new sticker! ' + cap(s[1]) + '!', function () {
+    /* stay up long enough to be seen even when the voice is off */
+    setTimeout(function () { partyEl.classList.remove('on'); if (round === r) cb(); }, Math.max(600, 2200 - (Date.now() - shown)));
+  });
+}
+function renderBook() {
+  var grid = $('bookGrid');
+  grid.innerHTML = '';
+  STICKERS.forEach(function (s) {
+    var n = save.stickers[s[0]] || 0;
+    var b = el('button', 'stkslot' + (n ? '' : ' no'), '<img src="art/st-' + s[0] + '.webp" alt="">' + (n > 1 ? '<span class="cnt">' + n + '</span>' : ''));
+    b.type = 'button';
+    b.addEventListener('click', function (ev) {
+      ev.preventDefault(); unlockAudio();
+      if (!n) { sTap(); return; }
+      restart(b, 'bounce'); sPop(); say(cap(s[1]) + '!');
+    });
+    grid.appendChild(b);
+  });
+}
+
 /* ================= levels ================= */
 var LEVELS = {
   read: [
@@ -1966,7 +2373,28 @@ var LEVELS = {
     { name: 'Add numbers (to 10)', need: 4, teach: 2, intro: '', make: addRound },
     { name: 'Mystery box (2 + ? = 5)', need: 4, teach: 2, intro: 'What is in the box?', make: mysteryRound },
     { name: 'Take away with your finger', need: 4, teach: 1, intro: 'Take away!', make: tapTakeRound },
-    { name: 'Take away', need: 4, teach: 0, intro: 'Take away!', make: takeRound }
+    { name: 'Take away', need: 4, teach: 0, intro: 'Take away!', make: takeRound },
+    { name: 'Frog hops forward (number line, add)', need: 4, teach: 1, intro: 'Help the frog hop!', make: function () { return frogRound('+'); } },
+    { name: 'Frog hops back (number line, take away)', need: 4, teach: 1, intro: 'Now the frog hops back!', make: function () { return frogRound('-'); } },
+    { name: 'Frog hops both ways', need: 4, teach: 0, intro: 'Forward or back? Look at the sign.', make: function () { return frogRound('?'); } }
+  ],
+  pop: [
+    { name: 'Pop the number (1 to 20)', need: 4, intro: 'Listen. Pop the balloon!', make: popNumberRound },
+    { name: 'Pop the word', need: 4, intro: 'Listen. Pop the word!', make: popWordRound },
+    { name: 'Pop the answer (add to 10)', need: 4, intro: 'Pop the answer!', make: function () { return popAddRound(10); } },
+    { name: 'Pop the answer (take away)', need: 4, intro: 'Pop the answer!', make: popTakeRound },
+    { name: 'Pop the answer (add to 20)', need: 4, intro: 'Pop the answer!', make: function () { return popAddRound(20); } },
+    { name: 'Pop the opposite or the same word', need: 4, intro: 'Listen. Pop the word!', make: popWordQRound }
+  ],
+  sort: [
+    { name: 'Animal or food', need: 3, intro: 'Put each one in the right basket.', make: function () { return sortRound('food'); } },
+    { name: 'Wear it or ride it', need: 3, intro: 'Put each one in the right basket.', make: function () { return sortRound('wear'); } },
+    { name: 'Land or water', need: 3, intro: 'Where does it live?', make: function () { return sortRound('water'); } },
+    { name: 'Hot or cold', need: 3, intro: 'Hot or cold?', make: function () { return sortRound('hot'); } },
+    { name: 'Can fly or can not fly', need: 3, intro: 'Can it fly?', make: function () { return sortRound('fly'); } },
+    { name: 'Alive or not alive', need: 3, intro: 'Is it alive?', make: function () { return sortRound('alive'); } },
+    { name: 'Less than 10 or more than 10', need: 3, intro: 'Now sort the numbers.', make: function () { return sortRound('ten'); } },
+    { name: 'Even or odd', need: 3, intro: 'Even or odd?', make: function () { return sortRound('even'); } }
   ],
   spell: [
     { name: 'Missing letter (c_t)', need: 3, intro: 'Which letter is missing?', make: missingLetterRound },
@@ -2018,6 +2446,7 @@ WORLDS.forEach(function (W, i) {
 });
 function renderHome() {
   $('starHome').textContent = save.stars;
+  $('bookBtn').classList.toggle('fresh', !!save.newStk);
   WORLDS.forEach(function (W) {
     /* One bar and one star per tile. A star per level ran off the tile once Reading had 13 levels. */
     var n = LEVELS[W.k].length, lv = save.w[W.k].level;
@@ -2029,6 +2458,7 @@ function renderHome() {
 var whoEl = $('who');
 function renderWho() {
   whoEl.innerHTML = '';
+  whoEl.classList.toggle('many', store.kids.length > 3);
   if (store.kids.length < 2) return;
   store.kids.forEach(function (k, i) {
     var b = el('button', 'kid' + (i === store.cur ? ' me' : ''), k.face);
@@ -2105,6 +2535,13 @@ function teach(r, lead) {
   });
 }
 
+function renderRound(r) {
+  if (r.kind === 'build') renderBuild(r);
+  else if (r.kind === 'pop') renderPop(r);
+  else if (r.kind === 'frog') renderFrog(r);
+  else if (r.kind === 'sort') renderSort(r);
+  else renderChoice(r);
+}
 function nextRound() {
   if (!world) return;
   clearTimeout(hintTimer);
@@ -2120,7 +2557,7 @@ function nextRound() {
   bulbEl.classList.remove('glow');
   if (r.explain && ws.teach > 0 && lv.teach) {
     ws.teach--; r.taught = true; persist();
-    if (r.kind === 'build') renderBuild(r); else renderChoice(r);
+    renderRound(r);
     restart(stageEl, 'enter');
     renderDots();
     var lead = (introPending && lv.intro ? lv.intro + ' ' : '') + 'Watch me first. ' + (r.teachSay || r.say || '');
@@ -2146,7 +2583,7 @@ function nextRound() {
       return;
     }
   }
-  else renderChoice(r);
+  else renderRound(r);
   restart(stageEl, 'enter');
   renderDots();
   var parts = [];
@@ -2317,15 +2754,19 @@ function roundDone(r, fromNode) {
   save.stars++;
   stopSteps();
   var res = (r.taught || r.helped) ? 'same' : progress(r.firstTry);
+  /* a sticker for a level-up, for every 25 stars, and one straight away the first time */
+  var gift = res === 'up' || save.stars % STICKER_EVERY === 0 || stickerCount() === 0;
   persist();
   renderDots();
   var started = Date.now();
+  function go() { busy = false; nextRound(); }
+  function then() { if (gift) awardSticker(go); else go(); }
   say(r.right || pick(PRAISE), function () {
     var wait = Math.max(0, 900 - (Date.now() - started));
     setTimeout(function () {
       if (round !== r) return;
-      if (res === 'up') celebrate(function () { busy = false; nextRound(); });
-      else { busy = false; nextRound(); }
+      if (res === 'up') celebrate(then);
+      else then();
     }, wait);
   });
 }
@@ -2350,6 +2791,14 @@ function tapBtn(node, fn) {
   node.addEventListener('click', function (ev) { ev.preventDefault(); unlockAudio(); fn(ev); });
 }
 tapBtn($('backBtn'), function () { sTap(); showHome(); });
+var bookEl = $('book');
+tapBtn($('bookBtn'), function () {
+  sPop();
+  save.newStk = false; persist();
+  renderBook(); renderHome();
+  bookEl.classList.add('open');
+});
+tapBtn($('bookClose'), function () { sTap(); hush(); bookEl.classList.remove('open'); });
 tapBtn(bulbEl, function () {
   if (!round || !round.explain || round.done || round.teaching || busy) return;
   sTap();

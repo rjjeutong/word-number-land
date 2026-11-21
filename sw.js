@@ -1,7 +1,7 @@
 /* Word and Number Land service worker. Bump CACHE_NAME on every deploy. */
 'use strict';
 
-var CACHE_NAME = 'wordnumberland-v7';
+var CACHE_NAME = 'wordnumberland-v8';
 var ASSETS = [
   './',
   './index.html',
@@ -27,7 +27,33 @@ var ASSETS = [
   './art/icon-time.webp',
   './art/icon-write.webp',
   './art/helper-write.webp',
-  './art/bg-write.webp'
+  './art/bg-write.webp',
+  './art/balloon.webp',
+  './art/basket.webp',
+  './art/bg-pop.webp',
+  './art/bg-sort.webp',
+  './art/frog.webp',
+  './art/helper-pop.webp',
+  './art/helper-sort.webp',
+  './art/icon-book.webp',
+  './art/icon-pop.webp',
+  './art/icon-sort.webp',
+  './art/lilypad.webp',
+  './art/st-balloon.webp',
+  './art/st-car.webp',
+  './art/st-cat.webp',
+  './art/st-dino.webp',
+  './art/st-dog.webp',
+  './art/st-icecream.webp',
+  './art/st-penguin.webp',
+  './art/st-rainbow.webp',
+  './art/st-robot.webp',
+  './art/st-rocket.webp',
+  './art/st-ship.webp',
+  './art/st-sun.webp',
+  './art/st-trophy.webp',
+  './art/st-turtle.webp',
+  './art/st-unicorn.webp'
 ];
 var NETWORK_TIMEOUT_MS = 2500;
 

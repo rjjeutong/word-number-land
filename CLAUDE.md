@@ -62,6 +62,9 @@ Numbers (`LEVELS.math`, rebuilt in v0.3.0 because he was lost at the equations):
    tapping the apples that are left counts them. One "watch me" round. `tapTakeRound`
    uses the `setup` hook, which `renderChoice` calls after it draws a round.
 6. Take away (no pictures of the answer, and no "watch me" rounds: see Players below)
+7. Frog hops forward on the number line (add)
+8. Frog hops back (take away)
+9. Frog hops both ways
 Robert, 2026-11-14: he counts to any number easily, and it's the math itself that is hard.
 So there are no counting levels (`countRound` still exists if it's ever wanted).
 
@@ -131,6 +134,35 @@ apostrophe in double quotes. Every picture is an emoji, so check that it
 renders on iOS.
 
 Save key: `wordnumberland-v1`. Local server port: 8082.
+
+## Livelier games (v0.8.0, 2026-11-21)
+
+Robert asked for "more vibrant interactive educational games" with Higgsfield art. Four things
+were added. Each has its own round `kind`, and `renderRound` picks the renderer.
+
+- **Balloons world** (`pop`, kind `pop`, `renderPop`): five balloons float up for ever, so there
+  is no hurry. The voice says what to pop (a number, a sight word, the answer to a sum, an opposite).
+  A wrong balloon fades. After two wrong ones the right one glows. One balloon picture is tinted
+  with `hue-rotate` to make the colours.
+- **Frog on the number line** (Numbers levels 7-9, kind `frog`, `renderFrog`): pads 0 to 10. He
+  taps the pad where the frog lands, or drags the frog there. The frog then hops one pad at a
+  time while the voice counts, so he can see too many or too few. A miss plays `explain()`.
+- **Thinking world** (`sort`, kind `sort`, `renderSort`): one thing at a time, drag it into one of
+  two baskets or tap the basket. Five things a round. The sets are in `SORTS` (animal or food,
+  wear or ride, land or water, hot or cold, flies or not, alive or not, less or more than 10,
+  even or odd). To add a level, add a set there and a line in `LEVELS.sort`.
+- **Sticker book**: 15 stickers in `STICKERS`, files `art/st-<id>.webp`. He gets one at every
+  level-up, at every 25 stars (`STICKER_EVERY`), and one on his first finished round. New ones
+  come first, then seconds with a count badge. Each player has their own (`save.stickers`). The
+  star count on the home screen is the button that opens the book.
+
+The home screen now has 8 worlds: four across when the iPad is wide, two across when it is tall.
+
+Art for v0.8.0: 7 Higgsfield images, 7 credits (medium quality is now 1 credit each, not 0.5).
+To stay cheap, small pictures are generated as one sheet (for example 6 stickers in a 3 by 2
+grid on a transparent background) and cut apart with PIL by connected shapes. Two stickers
+from the first sheet (a red car with a face, a purple dragon) were left out because they
+looked too much like well-known film and game characters, and were replaced.
 
 ## Players (v0.6.0, 2026-11-21)
 
