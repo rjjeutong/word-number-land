@@ -55,6 +55,11 @@ Copy the template, fill it in, keep the newest entry at the top.
 - Robert: "adding more vibrant interactive educational games. use higgsfield to make it more lively." Added a Balloons world (pop the right balloon), a Thinking world (sort things into two baskets), the frog on the number line (Numbers levels 7-9) and a sticker book that fills up as he plays.
 - To watch for: which of the new games he goes back to, whether he opens the sticker book by himself, and whether he drags or taps in the sorting game.
 
+**Changed as a result (v0.9.0, same day)**
+- Robert: "add more games and more levels." Added memory pairs and what-comes-next patterns to Thinking (now 15 levels), four more Balloons levels (10), five more Numbers levels (14) and two more Time levels (7).
+- To watch for: is 8 cards too many for the pairs game, and are the sums to 20 too big a jump after the frog?
+- Robert: the "Watch me first" rounds on the adding levels give the answer away. Removed from Numbers levels 1-4. The counting now only plays after a wrong tap or the lightbulb.
+
 ### 2026-11-14 (night)  (build v0.5.0 on the iPad, Writing world)
 
 **Made him laugh / he liked**

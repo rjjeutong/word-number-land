@@ -100,6 +100,31 @@
   .frog.hop img { animation: froghop 0.3s ease-out; }
   @keyframes froghop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5vmin) scale(1.06, 0.94); } }
 
+  /* patterns */
+  .prompt.pat { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 1.4vmin; font-size: min(8vmin, 68px); line-height: 1.15; padding: 2.4vmin 4vmin; }
+  .prompt.pat.nums { gap: 4vmin; font-weight: 800; font-size: min(10vmin, 84px); }
+  .pq { display: inline-flex; align-items: center; justify-content: center; min-width: 1.25em; height: 1.25em; padding: 0 0.1em; border-radius: 2vmin; background: #b9c3da; color: #fff; font-weight: 800; }
+  .pq.filled { background: #c9f7d9; color: var(--ink); animation: popIn 0.4s ease-out; }
+  .counton { display: flex; flex-wrap: wrap; justify-content: center; gap: 1vmin; min-height: 7.4vmin; max-width: 84vw; }
+  .counton span { background: #ffd23f; border-radius: 99px; padding: 0 2vmin; font-size: min(5.4vmin, 44px); font-weight: 800; line-height: 1.35; animation: popIn 0.3s ease-out; }
+
+  /* memory pairs */
+  .prompt.hidep { display: none; }
+  .choices.cards { display: grid; gap: 2.6vmin; }
+  .choices.cards.c3 { grid-template-columns: repeat(3, auto); }
+  .choices.cards.c4 { grid-template-columns: repeat(4, auto); }
+  .card { width: min(21vw, 31vh); height: min(21vw, 31vh); padding: 0; border-radius: 4vmin; background: linear-gradient(160deg, #9d8bff, #7b61ff); color: #fff; box-shadow: 0 1.2vmin 0 rgba(0,0,0,0.16); display: flex; align-items: center; justify-content: center; font-size: min(9vmin, 76px); transition: transform 0.15s; }
+  .c3 .card { width: min(27vw, 32vh); height: min(27vw, 32vh); }
+  .card:active { transform: translateY(0.8vmin); }
+  .card .cf { display: none; }
+  .card.open, .card.done { background: var(--card); color: var(--ink); }
+  .card.open .cb, .card.done .cb { display: none; }
+  .card.open .cf, .card.done .cf { display: block; animation: popIn 0.3s ease-out; }
+  .card.done { box-shadow: 0 0 0 0.9vmin var(--good), 0 1.2vmin 0 rgba(0,0,0,0.12); }
+  .cf.big { font-size: min(12vmin, 100px); line-height: 1; }
+  .cf.txt { font-size: min(6vmin, 50px); font-weight: 800; }
+  .cf.sum { font-size: min(7.6vmin, 64px); font-weight: 800; color: #e2571e; }
+
   /* sorting */
   #prompt.sortp { z-index: 3; padding: 1.5vmin 7vmin; touch-action: none; }
   .sitem { display: flex; flex-direction: column; align-items: center; touch-action: none; }
@@ -358,7 +383,7 @@
 (function () {
 'use strict';
 
-var VERSION = '0.8.0';
+var VERSION = '0.9.0';
 var SAVE_KEY = 'wordnumberland-v1';
 
 /* ================= helpers ================= */
@@ -407,7 +432,7 @@ function freshKid(face, first) {
   var w = {};
   WORLDS.forEach(function (W) {
     var lv = first ? W.start : 1;
-    w[W.k] = { level: lv, streak: 0, recent: [], right: 0, total: 0, best: lv, teach: W.k === 'math' ? 2 : (W.k === 'write' ? 1 : 0), lvRight: 0 };
+    w[W.k] = { level: lv, streak: 0, recent: [], right: 0, total: 0, best: lv, teach: W.k === 'write' ? 1 : 0, lvRight: 0 };
   });
   return { face: face, name: '', stars: 0, w: w, mathV: 3, stickers: {}, newStk: false };
 }
@@ -421,7 +446,7 @@ function readKid(s, d) {
     if (s.w && s.w[k]) for (var f in d.w[k]) if (s.w[k][f] !== undefined) d.w[k][f] = s.w[k][f];
   });
   /* v0.3.0 rebuilt Numbers (adding with pictures first, with teaching); restart there once. */
-  if ((s.mathV || 1) < 3) d.w.math = { level: 1, streak: 0, recent: [], right: 0, total: 0, best: 1, teach: 2, lvRight: 0 };
+  if ((s.mathV || 1) < 3) d.w.math = { level: 1, streak: 0, recent: [], right: 0, total: 0, best: 1, teach: 0, lvRight: 0 };
   return d;
 }
 function loadStore() {
@@ -1671,7 +1696,8 @@ function timeSay(h, m) {
   if (m === 0) return h + " o'clock";
   if (m === 30) return 'half past ' + h;
   if (m === 15) return 'quarter past ' + h;
-  return 'quarter to ' + (h % 12 + 1);
+  if (m === 45) return 'quarter to ' + (h % 12 + 1);
+  return h + ' ' + (m < 10 ? 'oh ' + m : m);
 }
 function wrapHour(h) { return ((h - 1) % 12 + 12) % 12 + 1; }
 /* The right time plus two near misses: same hour with another minute, or a nearby hour. */
@@ -1693,12 +1719,13 @@ function readClockRound(mins) {
     say: 'What time is it?', hint: 'The short red hand shows the hour. The long blue hand shows the minutes.', right: 'It is ' + timeSay(h, m) + '!'
   };
 }
-function findClockRound() {
-  var h = 1 + rnd(12);
-  var choices = timeOptions(h, 0, [0]).map(function (o, i) { return { html: clockSVG(o[0], o[1]), ok: i === 0 }; });
+function findClockRound(mins) {
+  mins = mins || [0];
+  var h = 1 + rnd(12), m = pick(mins);
+  var choices = timeOptions(h, m, mins).map(function (o, i) { return { html: clockSVG(o[0], o[1]), ok: i === 0 }; });
   return {
-    kind: 'choice', prompt: esc(timeText(h, 0)), promptClass: 'word', choices: choices, choiceClass: 'clockpick',
-    say: 'Find ' + timeSay(h, 0) + '.', hint: 'Find ' + timeSay(h, 0) + '. Look at the short red hand.', right: 'Yes! ' + timeSay(h, 0) + '!'
+    kind: 'choice', prompt: esc(timeText(h, m)), promptClass: 'word', choices: choices, choiceClass: 'clockpick',
+    say: 'Find ' + timeSay(h, m) + '.', hint: 'Find ' + timeSay(h, m) + '. Look at the short red hand.', right: 'Yes! ' + timeSay(h, m) + '!'
   };
 }
 
@@ -2345,6 +2372,192 @@ function renderBook() {
   });
 }
 
+/* ================= v0.9.0: patterns, memory pairs, more balloons, bigger sums ================= */
+
+/* --- what comes next? --- */
+var PAT_THINGS = ['\u{1F534}', '\u{1F535}', '\u{1F7E2}', '\u{1F7E1}', '\u{1F7E3}', '\u{1F7E0}', '⭐', '\u{1F34E}', '\u{1F34C}', '\u{1F438}', '\u{1F431}', '\u{1F436}', '\u{1F41D}', '\u{1F338}', '\u{1F680}', '\u{1F388}'];
+function patternRound(templates) {
+  var t = pick(templates), things = shuffle(PAT_THINGS).slice(0, 4);
+  var len = t.length * 2 + rnd(t.length), seq = [];
+  for (var i = 0; i < len; i++) seq.push(things[t.charCodeAt(i % t.length) - 65]);
+  var ans = things[t.charCodeAt(len % t.length) - 65];
+  var opts = [ans];
+  things.forEach(function (x) { if (opts.length < 3 && opts.indexOf(x) < 0) opts.push(x); });
+  return {
+    kind: 'choice', prompt: seq.map(function (x) { return '<span>' + x + '</span>'; }).join('') + '<span class="pq" id="qn">?</span>', promptClass: 'pat',
+    choices: opts.map(function (x, i) { return { html: x, ok: i === 0 }; }), choiceClass: 'pic',
+    say: 'What comes next?', hint: 'Look at the pattern. What comes next?', right: pick(PRAISE) + ' You found the pattern!', onRight: function () { fillQ(ans); }
+  };
+}
+/* A counting pattern: [numbers shown, the next one, the step]. */
+function countSeq(steps, canGoDown) {
+  var step = pick(steps), down = canGoDown && step <= 2 && rnd(3) === 0;
+  var start = step * (down ? 5 + rnd(5) : rnd(7)) + (step === 1 ? rnd(10) : 0), seq = [];
+  for (var i = 0; i < 4; i++) seq.push(start + (down ? -1 : 1) * step * i);
+  return { seq: seq, ans: start + (down ? -1 : 1) * step * 4, step: step, down: down };
+}
+function seqWrong(p) {
+  var out = [];
+  shuffle([p.ans + 1, p.ans - 1, p.ans + p.step, p.ans + 2, p.ans + 10, p.ans - p.step]).forEach(function (n) {
+    if (out.length < 4 && n >= 0 && n !== p.ans && p.seq.indexOf(n) < 0 && out.indexOf(n) < 0) out.push(n);
+  });
+  return out;
+}
+function seqSay(p) { return 'Count ' + (p.down ? 'back ' : '') + 'by ' + (p.step === 1 ? 'ones' : p.step === 2 ? 'twos' : p.step === 5 ? 'fives' : 'tens') + '.'; }
+function numPatternRound() {
+  var p = countSeq([1, 2, 2, 5, 10], true), wrong = seqWrong(p).slice(0, 2);
+  return {
+    kind: 'choice', prompt: p.seq.map(function (n) { return '<span>' + n + '</span>'; }).join('') + '<span class="pq" id="qn">?</span>', promptClass: 'pat nums',
+    choices: [{ html: String(p.ans), ok: true }].concat(wrong.map(function (n) { return { html: String(n), ok: false }; })), choiceClass: 'num',
+    say: 'What number comes next?', hint: 'What number comes next? ' + seqSay(p), right: p.seq.join(', ') + ', ' + p.ans + '!', onRight: function () { fillQ(p.ans); }
+  };
+}
+
+/* --- memory pairs: turn two cards over. A pair stays open. No pair, they turn back. --- */
+function matchRound(pairs, line) {
+  var cards = [];
+  pairs.forEach(function (p, i) {
+    cards.push({ k: i, h: p.a[0], c: p.a[1], say: p.say });
+    cards.push({ k: i, h: p.b[0], c: p.b[1], say: p.say });
+  });
+  return { kind: 'match', cards: shuffle(cards), pairs: pairs.length, say: line, hint: line, right: 'You found them all! ' + pick(PRAISE) };
+}
+function picPairsRound() {
+  var pool = SORTS.food.A.concat(SORTS.food.B, SORTS.wear.B);
+  return matchRound(shuffle(pool).slice(0, 3).map(function (t) { return { a: [t[0], 'big'], b: [t[0], 'big'], say: t[1] }; }), 'Find the pairs.');
+}
+function wordPairsRound() {
+  var pool = WORDS1.concat(WORDS2);
+  return matchRound(shuffle(pool).slice(0, 4).map(function (t) { return { a: [esc(t[0]), 'txt'], b: [t[1], 'big'], say: t[0] }; }), 'Match the word to the picture.');
+}
+function sumPairsRound() {
+  var answers = shuffle([2, 3, 4, 5, 6, 7, 8, 9, 10]).slice(0, 4);
+  return matchRound(answers.map(function (c) {
+    var a = 1 + rnd(c - 1);
+    return { a: [a + ' + ' + (c - a), 'sum'], b: [String(c), 'sum'], say: a + ' plus ' + (c - a) + ' is ' + c };
+  }), 'Match the sum to the answer.');
+}
+function oppPairsRound() {
+  var used = [], pairs = [];
+  shuffle(WORDQ).forEach(function (x) {
+    if (x[0] !== 'o' || pairs.length >= 4 || used.indexOf(x[1]) >= 0 || used.indexOf(x[2]) >= 0) return;
+    used.push(x[1], x[2]);
+    pairs.push({ a: [esc(x[1]), 'txt'], b: [esc(x[2]), 'txt'], say: x[1] + ' and ' + x[2] });
+  });
+  return matchRound(pairs, 'Match the opposites.');
+}
+function renderMatch(r) {
+  promptEl.className = 'prompt hidep';
+  promptEl.innerHTML = '';
+  choicesEl.className = 'choices cards ' + (r.cards.length <= 6 ? 'c3' : 'c4');
+  choicesEl.innerHTML = '';
+  r.open = []; r.found = 0; r.misses = 0; r.lock = false;
+  r.cards.forEach(function (c) {
+    var b = el('button', 'card', '<span class="cb">⭐</span><span class="cf ' + c.c + '">' + c.h + '</span>');
+    b.type = 'button';
+    b.addEventListener('pointerdown', function (ev) { ev.preventDefault(); onCard(r, c); });
+    choicesEl.appendChild(b);
+    c.el = b;
+  });
+}
+function onCard(r, c) {
+  if (busy || r.done || r.lock || round !== r || c.el.classList.contains('open') || c.el.classList.contains('done')) return;
+  unlockAudio(); sTap();
+  c.el.classList.add('open');
+  r.open.push(c);
+  if (r.open.length < 2) return;
+  var a = r.open[0], b = r.open[1];
+  r.open = [];
+  if (a.k === b.k) {
+    [a, b].forEach(function (x) { x.el.classList.remove('open'); x.el.classList.add('done'); });
+    sDing(); burstFrom(b.el, 20); cheerHelper();
+    r.found++;
+    if (r.found >= r.pairs) {
+      r.done = true;
+      /* looking under cards is how the game is played, so only a lot of misses counts as a miss */
+      r.firstTry = r.misses <= r.pairs + 1;
+      roundDone(r, choicesEl);
+    } else if (a.say) say(a.say);
+  } else {
+    r.misses++; r.lock = true;
+    setTimeout(function () {
+      if (round !== r) return;
+      a.el.classList.remove('open'); b.el.classList.remove('open');
+      r.lock = false;
+    }, 1200);
+  }
+}
+
+/* --- more balloons --- */
+function popNextRound() {
+  var p = countSeq([1, 2, 5, 10], false);
+  return popRound({ prompt: p.seq.slice(1).join(', ') + ', ?', say: 'What comes next? Pop it.', right: p.seq.slice(1).join(', ') + ', ' + p.ans + '!', answers: [p.ans].concat(seqWrong(p)) });
+}
+var RHYMES = [
+  ['cat', 'hat', 'bat', 'mat', 'rat'], ['dog', 'log', 'frog', 'fog'], ['sun', 'run', 'fun', 'bun'], ['bed', 'red', 'fed', 'sled'],
+  ['pig', 'big', 'dig', 'wig'], ['cake', 'lake', 'rake', 'bake'], ['bee', 'tree', 'see', 'knee'], ['star', 'car', 'jar', 'far'],
+  ['moon', 'spoon', 'soon', 'noon'], ['ball', 'tall', 'wall', 'fall'], ['ring', 'king', 'sing', 'wing'], ['boat', 'coat', 'goat', 'note'],
+  ['night', 'light', 'kite', 'bite'], ['rain', 'train', 'cane', 'plane'], ['book', 'look', 'cook', 'hook'], ['bug', 'hug', 'mug', 'rug'],
+  ['hen', 'pen', 'ten', 'men'], ['fox', 'box', 'socks', 'rocks'], ['duck', 'truck', 'luck', 'stuck'], ['bell', 'shell', 'well', 'tell']
+];
+function popRhymeRound() {
+  var gi = RHYMES.indexOf(pickFresh('rhyme', RHYMES)), g = shuffle(RHYMES[gi]), t = g[0], ans = [g[1]];
+  shuffle(RHYMES.filter(function (x, i) { return i !== gi; })).slice(0, 4).forEach(function (o) { ans.push(pick(o)); });
+  return popRound({ prompt: '\u{1F3B5} ' + esc(t), small: true, say: 'Pop the word that rhymes with ' + t + '.', right: cap(t) + ' and ' + g[1] + ' rhyme!', answers: ans, sayRate: 0.9 });
+}
+function popMissingRound() {
+  var c = 3 + rnd(8), a = 1 + rnd(c - 1), b = c - a;
+  return popRound({ prompt: a + ' + ? = ' + c, say: a + ' plus what, makes ' + c + '? Pop it.', right: a + ' plus ' + b + ' makes ' + c + '!', answers: nearNums(b, 0, 10, 5) });
+}
+function popDoubleRound() {
+  var n = 1 + rnd(10);
+  return popRound({ prompt: n + ' + ' + n, say: 'Double ' + n + '. Pop the answer.', right: 'Double ' + n + ' is ' + (2 * n) + '!', answers: nearNums(2 * n, 0, 22, 5) });
+}
+
+/* --- bigger sums, with no pictures. The explanation counts on (or back) in yellow chips. --- */
+function countChips(from, n, dir) {
+  var steps = [{ fn: function () { var c = $('con'); if (c) c.innerHTML = ''; }, say: 'Start at ' + from + '. Count ' + (dir > 0 ? 'on ' : 'back ') + n + '.' }];
+  for (var i = 1; i <= n; i++) (function (v) {
+    steps.push({ fn: function () { var c = $('con'); if (c) c.insertAdjacentHTML('beforeend', '<span>' + v + '</span>'); sTap(); }, say: String(v), rate: 1.15 });
+  })(from + dir * i);
+  return steps;
+}
+function sumRound(text, sayLine, ans, max, explain) {
+  return {
+    kind: 'choice', prompt: '<div class="stack"><div class="eqline">' + text + ' = <span class="n q" id="qn">?</span></div><div class="counton" id="con"></div></div>', promptClass: 'feedp',
+    choices: numChoices(ans, max), choiceClass: 'num', say: sayLine, hint: sayLine, right: sayLine + ' is ' + ans + '!', onRight: function () { fillQ(ans); }, explain: explain
+  };
+}
+function add20Round() {
+  var c = 11 + rnd(10), b = 2 + rnd(8), a = c - b;
+  return sumRound(a + ' + ' + b, a + ' plus ' + b, c, 22, function () { return countChips(a, b, 1).concat([{ say: a + ' plus ' + b + ' is ' + c + '!' }]); });
+}
+function take20Round() {
+  var a = 11 + rnd(10), b = 2 + rnd(8), c = a - b;
+  return sumRound(a + ' &minus; ' + b, a + ' take away ' + b, c, 20, function () { return countChips(a, b, -1).concat([{ say: a + ' take away ' + b + ' is ' + c + '!' }]); });
+}
+function doubleRound() {
+  var n = 2 + rnd(9);
+  return sumRound(n + ' + ' + n, 'Double ' + n, 2 * n, 22, function () { return countChips(n, n, 1).concat([{ say: 'Double ' + n + ' is ' + (2 * n) + '!' }]); });
+}
+function threeRound() {
+  var a = 1 + rnd(5), b = 1 + rnd(5), c = 1 + rnd(5), ab = a + b;
+  return sumRound(a + ' + ' + b + ' + ' + c, a + ' plus ' + b + ' plus ' + c, ab + c, 17, function () {
+    return [{ say: 'First, ' + a + ' plus ' + b + ' is ' + ab + '.' }].concat(countChips(ab, c, 1)).concat([{ say: 'So the answer is ' + (ab + c) + '!' }]);
+  });
+}
+/* The elephant asks for the bigger number, the ant for the smaller one. */
+function compareRound() {
+  var a = 1 + rnd(99), b = a, big = rnd(2) === 0;
+  /* half the time the two numbers are close together */
+  while (b === a) b = rnd(2) ? 1 + rnd(99) : Math.max(1, Math.min(99, a + pick([-3, -2, -1, 1, 2, 3, 10, -10])));
+  var want = big ? Math.max(a, b) : Math.min(a, b), line = 'Which number is ' + (big ? 'bigger?' : 'smaller?');
+  return {
+    kind: 'choice', prompt: big ? '\u{1F418}' : '\u{1F41C}', promptClass: 'say', choices: [{ html: String(a), ok: a === want }, { html: String(b), ok: b === want }], choiceClass: 'two', fixedOrder: true,
+    say: line, hint: line + ' The elephant wants the bigger number. The ant wants the smaller number.', right: want + ' is ' + (big ? 'bigger' : 'smaller') + ' than ' + (a === want ? b : a) + '!'
+  };
+}
+
 /* ================= levels ================= */
 var LEVELS = {
   read: [
@@ -2368,15 +2581,20 @@ var LEVELS = {
     { name: 'Why? (work it out)', need: 4, goal: 20, intro: 'Read it. Then think. Why?', make: whyRound }
   ],
   math: [
-    { name: 'Feed the monster (add pictures to 5)', need: 4, teach: 2, intro: 'Feed the monster!', make: feedRound },
-    { name: 'Add with pictures (to 8)', need: 4, teach: 2, intro: '', make: addPicRound },
-    { name: 'Add numbers (to 10)', need: 4, teach: 2, intro: '', make: addRound },
-    { name: 'Mystery box (2 + ? = 5)', need: 4, teach: 2, intro: 'What is in the box?', make: mysteryRound },
+    { name: 'Feed the monster (add pictures to 5)', need: 4, teach: 0, intro: 'Feed the monster!', make: feedRound },
+    { name: 'Add with pictures (to 8)', need: 4, teach: 0, intro: '', make: addPicRound },
+    { name: 'Add numbers (to 10)', need: 4, teach: 0, intro: '', make: addRound },
+    { name: 'Mystery box (2 + ? = 5)', need: 4, teach: 0, intro: 'What is in the box?', make: mysteryRound },
     { name: 'Take away with your finger', need: 4, teach: 1, intro: 'Take away!', make: tapTakeRound },
     { name: 'Take away', need: 4, teach: 0, intro: 'Take away!', make: takeRound },
     { name: 'Frog hops forward (number line, add)', need: 4, teach: 1, intro: 'Help the frog hop!', make: function () { return frogRound('+'); } },
     { name: 'Frog hops back (number line, take away)', need: 4, teach: 1, intro: 'Now the frog hops back!', make: function () { return frogRound('-'); } },
-    { name: 'Frog hops both ways', need: 4, teach: 0, intro: 'Forward or back? Look at the sign.', make: function () { return frogRound('?'); } }
+    { name: 'Frog hops both ways', need: 4, teach: 0, intro: 'Forward or back? Look at the sign.', make: function () { return frogRound('?'); } },
+    { name: 'Bigger or smaller (to 99)', need: 4, intro: 'The elephant wants the bigger number. The ant wants the smaller number.', make: compareRound },
+    { name: 'Doubles (6 + 6)', need: 4, teach: 0, intro: 'Doubles!', make: doubleRound },
+    { name: 'Add to 20', need: 4, teach: 0, intro: 'Bigger numbers now!', make: add20Round },
+    { name: 'Take away within 20', need: 4, teach: 0, intro: 'Take away with bigger numbers.', make: take20Round },
+    { name: 'Add three numbers', need: 4, teach: 0, intro: 'Three numbers to add!', make: threeRound }
   ],
   pop: [
     { name: 'Pop the number (1 to 20)', need: 4, intro: 'Listen. Pop the balloon!', make: popNumberRound },
@@ -2384,7 +2602,11 @@ var LEVELS = {
     { name: 'Pop the answer (add to 10)', need: 4, intro: 'Pop the answer!', make: function () { return popAddRound(10); } },
     { name: 'Pop the answer (take away)', need: 4, intro: 'Pop the answer!', make: popTakeRound },
     { name: 'Pop the answer (add to 20)', need: 4, intro: 'Pop the answer!', make: function () { return popAddRound(20); } },
-    { name: 'Pop the opposite or the same word', need: 4, intro: 'Listen. Pop the word!', make: popWordQRound }
+    { name: 'Pop the opposite or the same word', need: 4, intro: 'Listen. Pop the word!', make: popWordQRound },
+    { name: 'Pop what comes next (count by 1, 2, 5, 10)', need: 4, intro: 'What comes next? Pop it!', make: popNextRound },
+    { name: 'Pop the rhyme', need: 4, intro: 'Rhyming words sound the same at the end. Pop the rhyme!', make: popRhymeRound },
+    { name: 'Pop the missing number (3 + ? = 7)', need: 4, intro: 'Pop the missing number!', make: popMissingRound },
+    { name: 'Pop the double', need: 4, intro: 'Doubles! Pop the answer!', make: popDoubleRound }
   ],
   sort: [
     { name: 'Animal or food', need: 3, intro: 'Put each one in the right basket.', make: function () { return sortRound('food'); } },
@@ -2394,7 +2616,14 @@ var LEVELS = {
     { name: 'Can fly or can not fly', need: 3, intro: 'Can it fly?', make: function () { return sortRound('fly'); } },
     { name: 'Alive or not alive', need: 3, intro: 'Is it alive?', make: function () { return sortRound('alive'); } },
     { name: 'Less than 10 or more than 10', need: 3, intro: 'Now sort the numbers.', make: function () { return sortRound('ten'); } },
-    { name: 'Even or odd', need: 3, intro: 'Even or odd?', make: function () { return sortRound('even'); } }
+    { name: 'Even or odd', need: 3, intro: 'Even or odd?', make: function () { return sortRound('even'); } },
+    { name: 'What comes next? (easy patterns)', need: 4, intro: 'Look at the pattern. What comes next?', make: function () { return patternRound(['AB', 'AB', 'ABC']); } },
+    { name: 'What comes next? (harder patterns)', need: 4, intro: 'Look at the pattern. What comes next?', make: function () { return patternRound(['AAB', 'ABB', 'ABC', 'AABB', 'ABAC']); } },
+    { name: 'Number patterns (count by 2, 5, 10)', need: 4, intro: 'What number comes next?', make: numPatternRound },
+    { name: 'Pairs: pictures', need: 2, intro: 'Turn over two cards. Find the pairs!', make: picPairsRound },
+    { name: 'Pairs: word and picture', need: 2, intro: 'Match the word to the picture.', make: wordPairsRound },
+    { name: 'Pairs: sum and answer', need: 2, intro: 'Match the sum to the answer.', make: sumPairsRound },
+    { name: 'Pairs: opposites', need: 2, intro: 'Match the opposites.', make: oppPairsRound }
   ],
   spell: [
     { name: 'Missing letter (c_t)', need: 3, intro: 'Which letter is missing?', make: missingLetterRound },
@@ -2415,7 +2644,9 @@ var LEVELS = {
     { name: "Read the clock (o'clock)", need: 4, intro: '', make: function () { return readClockRound([0]); } },
     { name: "Find the clock (o'clock)", need: 4, intro: '', make: findClockRound },
     { name: 'Half past', need: 4, intro: '', make: function () { return readClockRound([0, 30]); } },
-    { name: 'Quarter past and to', need: 4, intro: '', make: function () { return readClockRound([0, 15, 30, 45]); } }
+    { name: 'Quarter past and to', need: 4, intro: '', make: function () { return readClockRound([0, 15, 30, 45]); } },
+    { name: 'Five minutes (3:25)', need: 4, intro: 'Count by fives around the clock.', make: function () { return readClockRound([5, 10, 20, 25, 35, 40, 50, 55]); } },
+    { name: 'Find the clock (any time)', need: 4, intro: '', make: function () { return findClockRound([0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]); } }
   ],
   write: [
     { name: 'Little letters (a-z), dotted guide', need: 4, goal: 15, teach: 1, intro: 'Trace with your finger. Start at the green dot.', make: function () { return letterTraceRound(LOWER_LIST, 'wl', false); } },
@@ -2540,6 +2771,7 @@ function renderRound(r) {
   else if (r.kind === 'pop') renderPop(r);
   else if (r.kind === 'frog') renderFrog(r);
   else if (r.kind === 'sort') renderSort(r);
+  else if (r.kind === 'match') renderMatch(r);
   else renderChoice(r);
 }
 function nextRound() {

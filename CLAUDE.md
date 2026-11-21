@@ -72,8 +72,10 @@ Teaching ("watch me"): every math round has an `explain()` that returns steps. E
 runs `fn`, then speaks and waits for the voice to finish (`runSteps`). Apples light up one by
 one with a number badge, the mystery box fills apple by apple, and take-away crosses
 apples out and then counts what is left. The explanation plays:
-- in the first `teach` rounds of a level (2), whenever he
-  arrives at a level by moving up or down;
+- in the first `teach` rounds of a level, whenever he arrives at a level by moving up or
+  down. Robert, 2026-11-21: on the adding levels this gave the answer away, so levels 1-4 now
+  have `teach: 0`. Only the two levels with a new way of playing keep one demo round (take
+  away with your finger, and the frog);
 - automatically after his first wrong tap in a round;
 - whenever he taps the lightbulb button.
 Taught and lightbulb rounds don't change the streak or the miss count. A round where he
@@ -163,6 +165,23 @@ To stay cheap, small pictures are generated as one sheet (for example 6 stickers
 grid on a transparent background) and cut apart with PIL by connected shapes. Two stickers
 from the first sheet (a red car with a face, a purple dragon) were left out because they
 looked too much like well-known film and game characters, and were replaced.
+
+## More games and levels (v0.9.0, 2026-11-21)
+
+Robert: "add more games and more levels". No new art was made for this.
+
+- Thinking levels 9-11, "what comes next": picture patterns (`patternRound`, templates like
+  'AB' or 'AABB') and number patterns that count by 1, 2, 5 or 10 (`numPatternRound`).
+- Thinking levels 12-15, memory pairs (kind `match`, `renderMatch`): turn over two cards. A
+  pair stays open, anything else turns back. Picture pairs (6 cards), then word and picture,
+  sum and answer, and opposites (8 cards). A round only counts as a miss after a lot of wrong
+  turns, because looking under cards is how the game is played. These levels need 2 rounds.
+- Balloons levels 7-10: pop what comes next, pop the rhyme (`RHYMES`), pop the missing number,
+  pop the double.
+- Numbers levels 10-14: bigger or smaller to 99 (the elephant wants the bigger number, the ant
+  the smaller), doubles, add to 20, take away within 20, add three numbers. These have no
+  pictures. Their `explain()` counts on or back in yellow chips (`countChips`).
+- Time levels 6-7: five-minute times (3:25), and find the clock for any time.
 
 ## Players (v0.6.0, 2026-11-21)
 

@@ -1,7 +1,7 @@
 /* Word and Number Land service worker. Bump CACHE_NAME on every deploy. */
 'use strict';
 
-var CACHE_NAME = 'wordnumberland-v8';
+var CACHE_NAME = 'wordnumberland-v9';
 var ASSETS = [
   './',
   './index.html',
