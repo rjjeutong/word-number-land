@@ -12,8 +12,10 @@ CSS and JS with no build step. It works offline once installed.
 - The game adapts: it moves him up after a run of right answers and quietly
   back down after misses.
 - The iPad's built-in voice reads out instructions, numbers and hints.
-- The gear on the home screen is for grown-ups: levels, voice speed, sound,
-  reset.
+- The gear on the home screen is for grown-ups: players, levels, voice speed,
+  sound, reset.
+- Each player keeps their own levels and stars. Add players in the gear, then
+  each child taps their animal face on the home screen.
 
 ## Run locally
 

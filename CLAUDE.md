@@ -49,7 +49,7 @@ Numbers (`LEVELS.math`, rebuilt in v0.3.0 because he was lost at the equations):
 2. Add with pictures, with the written sum underneath (to 8)
 3. Add numbers (to 10)
 4. Mystery box (a + ? = c)
-5. Take away
+5. Take away (no pictures of the answer, and no "watch me" rounds: see Players below)
 Robert, 2026-11-14: he counts to any number easily, and it's the math itself that is hard.
 So there are no counting levels (`countRound` still exists if it's ever wanted).
 
@@ -119,6 +119,27 @@ apostrophe in double quotes. Every picture is an emoji, so check that it
 renders on iOS.
 
 Save key: `wordnumberland-v1`. Local server port: 8082.
+
+## Players (v0.6.0, 2026-11-21)
+
+Robert asked for other kids to play without taking over his son's place. The save is now
+`store`: `{ v: 2, cur, sound, rate, kids: [...] }`. Each kid has `face` (an animal emoji from
+`FACES`), an optional `name`, `stars`, `w` (the per-world levels) and `mathV`. `save` always
+points at `store.kids[store.cur]`, so the game code still reads `save.w` and `save.stars`.
+Sound and voice speed are shared. An older one-player save becomes player 1 on load.
+
+- The game still opens straight into the last player. With two or more players, their faces
+  sit next to the star count on the home screen and a tap switches. With one player nothing shows.
+- Players are added, named, given a face and removed in the grown-up gear (up to `MAX_KIDS`, 5).
+  Names stay in localStorage on the device. Never put a child's name in the code.
+- Player 1 starts at each world's `start` level. Added players start at level 1 everywhere, and
+  Robert can place them with + and -. "Hold to reset" resets only the player who is playing.
+- The home tiles show one progress bar (level out of levels) and one star. A star per level
+  ran off the tile once Reading had 13 levels.
+
+Take away (math level 5) has `teach: 0` and draws every apple whole, because the faded
+apples gave the answer away (Robert, 2026-11-21: "he never really thinks"). The crossing-out
+only happens in `explain()` after a wrong tap or the lightbulb, and in `onRight`.
 
 ## Art (v0.4.0, 2026-11-14)
 

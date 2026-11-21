@@ -32,6 +32,34 @@ Copy the template, fill it in, keep the newest entry at the top.
 
 ## Entries
 
+### 2026-11-21  (build v0.5.0 on the iPad, Robert's notes after a week of play)
+
+**Confused him / frustrated him**
+- Take away: the eaten apples were already faded out, so he just counted the bright ones and never did the sum.
+
+**Robert's notes**
+- Home screen: the Reading tile's 13 stars ran off the tile. "Looks like too many stars."
+- Other kids want to play without taking over where he is.
+
+**Changed as a result (v0.6.0)**
+- Home tiles show one bar and one star, not a star per level.
+- Players: each has their own levels and stars, picked by an animal face on the home screen. Added behind the gear.
+- Take away: all the apples start whole. The crossing-out and counting only play after a wrong tap or the lightbulb. No "watch me first" rounds on that level.
+
+### 2026-11-14 (night)  (build v0.5.0 on the iPad, Writing world)
+
+**Made him laugh / he liked**
+- He likes Writing. Robert: "he likes it, the arrow helps him." The green start dot and arrow are what he follows.
+
+**Confused him / frustrated him**
+- Nothing reported.
+
+**Robert's notes**
+- The crayon demo works on the iPad and he played it straight away.
+
+**Changed as a result**
+- Nothing. Keep the dot and arrow as they are. Still waiting to hear how the Numbers "watch me" teaching is going.
+
 ### 2026-11-14 (later)  (build v0.2.0 on the iPad, he played all 5 worlds)
 
 **Made him laugh / he liked it**
