@@ -12,6 +12,8 @@ CSS and JS with no build step. It works offline once installed.
 - Numbers also has a frog that hops along a number line to add and take away.
 - Balloons: pop the balloon with the right number, word or answer.
 - Thinking: sort things into two baskets (animal or food, hot or cold, even or odd).
+- Puzzles: jigsaws from 2 to 16 pieces.
+- Coloring: free coloring, then color by number, by color word and by sum.
 - Sticker book: he earns stickers as he plays. Tap the star count to open it.
 - The game adapts: it moves him up after a run of right answers and quietly
   back down after misses.

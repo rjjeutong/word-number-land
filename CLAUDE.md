@@ -183,6 +183,24 @@ Robert: "add more games and more levels". No new art was made for this.
   pictures. Their `explain()` counts on or back in yellow chips (`countChips`).
 - Time levels 6-7: five-minute times (3:25), and find the clock for any time.
 
+## Puzzles and Coloring (v0.10.0, 2026-11-21)
+
+Robert: "maybe we should add puzzles and coloring games". Two more worlds, 10 on the home
+screen now (five across when wide, three across when tall). No new art was made: these two
+worlds show an emoji on their tile (`emo`) and borrow a helper and a background from another
+world (`helper`, `bgArt` in `WORLDS`). Proper icons would cost 2 Higgsfield credits. Ask first.
+
+- **Puzzles** (`puzzle`, kind `jig`, `renderJig`): a sticker on top of one of the backgrounds,
+  cut into a grid. He drags each piece to its cell. A piece dropped on the wrong cell goes
+  back, and after two wrong drops its cell lights up. Levels go 2, 4, 6, 9 pieces with a faint
+  guide picture, then 9, 12, 16 without. A new sticker in `STICKERS` is a new puzzle.
+- **Coloring** (`color`, kind `color`, `renderColor`): the pictures are SVG drawn in code, in
+  `COLOR_PICS`. Each part is `[colour group, shape, label x, label y]` on a 200 by 200 box, and
+  group -1 is a plain line. He taps a color, then a part. Level 1 is free coloring with a green
+  tick to finish. Then color by number, by reading the color word, by adding and by taking
+  away, where each part shows a sum and each swatch shows an answer. To add a picture, add
+  an entry to `COLOR_PICS` with 3 or 4 groups and keep the labelled parts big enough for a label.
+
 ## Players (v0.6.0, 2026-11-21)
 
 Robert asked for other kids to play without taking over his son's place. The save is now

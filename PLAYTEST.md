@@ -58,6 +58,7 @@ Copy the template, fill it in, keep the newest entry at the top.
 **Changed as a result (v0.9.0, same day)**
 - Robert: "add more games and more levels." Added memory pairs and what-comes-next patterns to Thinking (now 15 levels), four more Balloons levels (10), five more Numbers levels (14) and two more Time levels (7).
 - To watch for: is 8 cards too many for the pairs game, and are the sums to 20 too big a jump after the frog?
+- Robert: "maybe we should add puzzles and coloring games." v0.10.0 adds a Puzzles world (jigsaws from 2 to 16 pieces) and a Coloring world (free coloring, then color by number, by color word and by sum). To watch for: can he drag the small pieces of the 12 and 16 piece puzzles, and can he read the labels inside the small parts of the coloring pictures?
 - Robert: the "Watch me first" rounds on the adding levels give the answer away. Removed from Numbers levels 1-4. The counting now only plays after a wrong tap or the lightbulb.
 
 ### 2026-11-14 (night)  (build v0.5.0 on the iPad, Writing world)

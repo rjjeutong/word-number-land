@@ -58,8 +58,10 @@
   #bookBtn.fresh img { animation: wiggle 1.2s ease-in-out infinite; }
   #who.many .kid { width: 7vmin; height: 7vmin; font-size: min(4.4vmin, 34px); }
   /* eight worlds: four across when the iPad is wide, two across when it is tall */
-  #worlds { --t: min(21vw, 31vh); display: flex; gap: 3.4vmin; flex-wrap: wrap; justify-content: center; align-items: center; max-width: calc(var(--t) * 4 + 14vmin); margin-top: 9vmin; }
-  @media (orientation: portrait) { #worlds { --t: min(40vw, 18.5vh); max-width: calc(var(--t) * 2 + 6vmin); } .homehelper { display: none; } }
+  /* ten worlds: five across when the iPad is wide, three across when it is tall */
+  #worlds { --t: min(17vw, 31vh); display: flex; gap: 3vmin; flex-wrap: wrap; justify-content: center; align-items: center; max-width: calc(var(--t) * 5 + 16vmin); margin-top: 9vmin; }
+  @media (orientation: portrait) { #worlds { --t: min(28vw, 18.5vh); max-width: calc(var(--t) * 3 + 10vmin); } .homehelper { display: none; } }
+  .world .ic.emo { width: calc(var(--t) * 0.7); height: calc(var(--t) * 0.7); display: flex; align-items: center; justify-content: center; font-size: calc(var(--t) * 0.52); line-height: 1; filter: drop-shadow(0 0.8vmin 0 rgba(0,0,0,0.12)); pointer-events: none; }
 
   /* sticker book */
   #book { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 45; background: rgba(60, 40, 120, 0.55); }
@@ -124,6 +126,30 @@
   .cf.big { font-size: min(12vmin, 100px); line-height: 1; }
   .cf.txt { font-size: min(6vmin, 50px); font-weight: 800; }
   .cf.sum { font-size: min(7.6vmin, 64px); font-weight: 800; color: #e2571e; }
+
+  /* jigsaw */
+  .prompt.jigp { padding: 1.6vmin; }
+  .jig { position: relative; border-radius: 3vmin; overflow: hidden; background: #eef2fb; }
+  .jig .ghost { position: absolute; left: 0; top: 0; right: 0; bottom: 0; opacity: 0.22; }
+  .jig .cell { position: absolute; box-sizing: border-box; border: 0.3vmin dashed rgba(29,42,68,0.28); }
+  .jig .cell.hint { background: rgba(255,210,63,0.55); box-shadow: inset 0 0 0 0.8vmin #ffd23f; }
+  .jig.done .cell { border-color: transparent; }
+  .jig.done .ghost { opacity: 0; }
+  .choices.tray { gap: 2.2vmin; align-content: center; }
+  .piece { position: relative; flex: 0 0 auto; overflow: hidden; border-radius: 1.6vmin; box-shadow: 0 0.8vmin 0 rgba(0,0,0,0.2); touch-action: none; }
+  .piece.drag { z-index: 6; box-shadow: 0 1.6vmin 2.4vmin rgba(0,0,0,0.32); }
+  .piece.placed { position: absolute; left: 0; top: 0; border-radius: 0; box-shadow: none; pointer-events: none; animation: popIn 0.25s ease-out; }
+  .piece > div { position: absolute; left: 0; top: 0; pointer-events: none; }
+
+  /* coloring */
+  .prompt.colp { padding: 1.4vmin; background: #fff; }
+  .colsvg { display: block; width: min(54vh, 84vw); height: min(54vh, 84vw); touch-action: none; }
+  .colsvg .lab { font-size: 11px; font-weight: 800; font-family: var(--font); fill: #1d2a44; text-anchor: middle; dominant-baseline: central; pointer-events: none; paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; }
+  .choices.paints { gap: 2.2vmin; }
+  .paint { width: min(12vmin, 96px); height: min(12vmin, 96px); padding: 0; border-radius: 50%; box-shadow: inset 0 0 0 0.6vmin rgba(255,255,255,0.7), 0 1vmin 0 rgba(0,0,0,0.16); font-size: min(6vmin, 48px); font-weight: 800; color: #fff; text-shadow: 0 0.3vmin 0 rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
+  .paint.sel { transform: scale(1.2); box-shadow: inset 0 0 0 0.6vmin #fff, 0 0 0 0.9vmin #1d2a44; }
+  .paint.hint { animation: wiggle 0.9s ease-in-out infinite; }
+  .paint.tick { background: #fff; animation: popIn 0.4s ease-out; }
 
   /* sorting */
   #prompt.sortp { z-index: 3; padding: 1.5vmin 7vmin; touch-action: none; }
@@ -383,7 +409,7 @@
 (function () {
 'use strict';
 
-var VERSION = '0.9.0';
+var VERSION = '0.10.0';
 var SAVE_KEY = 'wordnumberland-v1';
 
 /* ================= helpers ================= */
@@ -418,7 +444,12 @@ var WORLDS = [
   { k: 'pop', label: 'Balloons', icon: '\u{1F388}', deco: '', start: 1, grad: 'linear-gradient(160deg,#ff9fc0,#f0437a)', bg: 'linear-gradient(180deg,#bfe6ff,#fff6e0)',
     cheer: ['Level up! Pop, pop, pop!', 'Wow! Level up! You are a balloon popper!'] },
   { k: 'sort', label: 'Thinking', icon: '\u{1F9FA}', deco: '', start: 1, grad: 'linear-gradient(160deg,#c4ea7a,#6fb52c)', bg: 'linear-gradient(180deg,#e4f6cf,#fff6e0)',
-    cheer: ['Level up! You are a super sorter!', 'Wow! Level up! Great thinking!'] }
+    cheer: ['Level up! You are a super sorter!', 'Wow! Level up! Great thinking!'] },
+  /* These two have no pictures of their own yet: an emoji on the tile, and a borrowed helper and background. */
+  { k: 'puzzle', label: 'Puzzles', icon: '\u{1F9E9}', emo: '\u{1F9E9}', helper: 'sort', bgArt: 'home', deco: '', start: 1, grad: 'linear-gradient(160deg,#a9b6ff,#5a67e8)', bg: 'linear-gradient(180deg,#dfe4ff,#fff6e0)',
+    cheer: ['Level up! You are a puzzle master!', 'Wow! Level up! Great puzzling!'] },
+  { k: 'color', label: 'Coloring', icon: '\u{1F3A8}', emo: '\u{1F3A8}', helper: 'write', bgArt: 'write', deco: '', start: 1, grad: 'linear-gradient(160deg,#ffe07a,#ff7ab8)', bg: 'linear-gradient(180deg,#ffe6cc,#fff6e0)',
+    cheer: ['Level up! You are a super artist!', 'Wow! Level up! Beautiful colors!'] }
 ];
 function worldOf(k) { for (var i = 0; i < WORLDS.length; i++) if (WORLDS[i].k === k) return WORLDS[i]; return WORLDS[0]; }
 
@@ -2558,6 +2589,257 @@ function compareRound() {
   };
 }
 
+/* ================= v0.10.0: jigsaw puzzles and coloring ================= */
+
+/* --- jigsaw: a sticker on top of one of the backgrounds, cut into a grid. Drag each piece to its cell. --- */
+var JIG_BG = ['home', 'read', 'math', 'spell', 'money', 'time', 'write', 'pop', 'sort'];
+function jigRound(cols, rows, ghost) {
+  var i = STICKERS.indexOf(pickFresh('jig', STICKERS)), s = STICKERS[i], order = [];
+  for (var k = 0; k < cols * rows; k++) order.push(k);
+  return {
+    kind: 'jig', cols: cols, rows: rows, ghost: ghost, order: shuffle(order), placed: {}, wrongs: {}, misses: 0,
+    pic: 'url("art/st-' + s[0] + '.webp") center / 76% auto no-repeat, url("art/bg-' + JIG_BG[i % JIG_BG.length] + '.webp") center / cover no-repeat',
+    say: 'Put the puzzle together.', hint: 'Put the puzzle together. Drag each piece to its place.', right: cap(s[1]) + '! ' + pick(PRAISE)
+  };
+}
+function renderJig(r) {
+  var S = Math.round(Math.min(window.innerHeight * 0.4, window.innerWidth * 0.8));
+  var cw = S / r.cols, ch = S / r.rows, n = r.cols * r.rows;
+  promptEl.className = 'prompt jigp';
+  promptEl.innerHTML = '<div class="jig" style="width:' + S + 'px;height:' + S + 'px"><div class="ghost"></div></div>';
+  var board = promptEl.querySelector('.jig');
+  board.querySelector('.ghost').style.background = r.pic;
+  if (!r.ghost) board.querySelector('.ghost').style.opacity = '0';
+  var cells = [];
+  for (var k = 0; k < n; k++) {
+    var c = el('div', 'cell');
+    c.style.left = (k % r.cols) * cw + 'px'; c.style.top = Math.floor(k / r.cols) * ch + 'px';
+    c.style.width = cw + 'px'; c.style.height = ch + 'px';
+    board.appendChild(c); cells.push(c);
+  }
+  choicesEl.className = 'choices tray';
+  choicesEl.innerHTML = '';
+  choicesEl.style.minHeight = '';
+  function makePiece(k) {
+    var p = el('div', 'piece', '<div></div>');
+    p.style.width = cw + 'px'; p.style.height = ch + 'px';
+    var inner = p.firstChild;
+    inner.style.width = S + 'px'; inner.style.height = S + 'px';
+    inner.style.background = r.pic;
+    inner.style.transform = 'translate(' + (-(k % r.cols) * cw) + 'px,' + (-Math.floor(k / r.cols) * ch) + 'px)';
+    return p;
+  }
+  function place(p, k) { p.className = 'piece placed'; p.style.transform = ''; cells[k].classList.remove('hint'); cells[k].appendChild(p); }
+  r.order.forEach(function (k) {
+    var p = makePiece(k);
+    if (r.placed[k]) { place(p, k); return; }
+    choicesEl.appendChild(p);
+    var sx = 0, sy = 0, on = false;
+    p.addEventListener('pointerdown', function (ev) {
+      ev.preventDefault(); unlockAudio();
+      if (busy || r.done || round !== r) return;
+      on = true; sx = ev.clientX; sy = ev.clientY;
+      p.classList.add('drag'); sTap();
+      try { p.setPointerCapture(ev.pointerId); } catch (e) {}
+    });
+    p.addEventListener('pointermove', function (ev) {
+      if (on) p.style.transform = 'translate(' + (ev.clientX - sx) + 'px,' + (ev.clientY - sy) + 'px) scale(1.05)';
+    });
+    function drop(ev) {
+      if (!on) return;
+      on = false;
+      p.classList.remove('drag');
+      var pr = p.getBoundingClientRect(), br = board.getBoundingClientRect();
+      var x = pr.left + pr.width / 2, y = pr.top + pr.height / 2;
+      p.style.transform = '';
+      if (x < br.left || x > br.right || y < br.top || y > br.bottom) return;
+      var at = Math.min(r.rows - 1, Math.floor((y - br.top) / ch)) * r.cols + Math.min(r.cols - 1, Math.floor((x - br.left) / cw));
+      if (at === k) {
+        r.placed[k] = true;
+        place(p, k);
+        sPop(); burstFrom(cells[k], 10);
+        if (Object.keys(r.placed).length >= n) {
+          r.done = true;
+          board.classList.add('done');
+          sDing(); burstFrom(board, 50); cheerHelper();
+          r.firstTry = r.misses <= Math.ceil(n / 3);
+          roundDone(r, board);
+        }
+      } else {
+        r.misses++;
+        r.wrongs[k] = (r.wrongs[k] || 0) + 1;
+        sBoing();
+        if (r.wrongs[k] >= 2) cells[k].classList.add('hint');
+      }
+    }
+    p.addEventListener('pointerup', drop);
+    p.addEventListener('pointercancel', function () { on = false; p.classList.remove('drag'); p.style.transform = ''; });
+  });
+  /* keep the tray the same height as pieces leave it, so nothing jumps */
+  choicesEl.style.minHeight = choicesEl.offsetHeight + 'px';
+  r.relayout = function () { if (round === r && !r.done) renderJig(r); };
+}
+
+/* --- coloring: pictures are drawn here as SVG parts: [colour group, shape, label x, label y].
+   Group -1 is a line that is not colored. Parts in the same group take the same color. --- */
+var PAINTS = [['red', '#ff5d73'], ['orange', '#ff9f1c'], ['yellow', '#ffd23f'], ['green', '#4cc35b'], ['blue', '#4c9bf5'], ['purple', '#9b6bff'], ['pink', '#ff8fc8'], ['brown', '#a9714b']];
+var COLOR_PICS = [
+  { name: 'a house', parts: [
+    [0, '<rect x="45" y="90" width="110" height="85"/>', 100, 112],
+    [1, '<rect x="88" y="128" width="24" height="47"/>', 100, 152],
+    [2, '<rect x="55" y="105" width="26" height="26"/>', 68, 118],
+    [2, '<rect x="119" y="105" width="26" height="26"/>', 132, 118],
+    [3, '<polygon points="32,90 100,34 168,90"/>', 100, 70],
+    [2, '<circle cx="172" cy="28" r="17"/>', 172, 28]] },
+  { name: 'a fish', parts: [
+    [1, '<polygon points="148,100 188,66 188,134"/>', 174, 100],
+    [1, '<polygon points="72,66 104,36 122,68"/>', 100, 56],
+    [1, '<polygon points="84,134 100,162 114,133"/>', 100, 146],
+    [0, '<ellipse cx="95" cy="100" rx="62" ry="38"/>', 108, 104],
+    [2, '<circle cx="60" cy="92" r="11"/>', 60, 92],
+    [3, '<circle cx="28" cy="56" r="11"/>', 28, 56],
+    [3, '<circle cx="18" cy="30" r="9"/>', 18, 30]] },
+  { name: 'a flower', parts: [
+    [3, '<rect x="0" y="182" width="200" height="18"/>', 30, 191],
+    [0, '<rect x="94" y="100" width="12" height="84"/>', null, null],
+    [0, '<ellipse cx="74" cy="150" rx="22" ry="11"/>', 74, 150],
+    [0, '<ellipse cx="126" cy="136" rx="22" ry="11"/>', 126, 136],
+    [1, '<circle cx="100" cy="40" r="21"/>', 100, 34],
+    [1, '<circle cx="131" cy="62" r="21"/>', 138, 60],
+    [1, '<circle cx="120" cy="97" r="21"/>', 126, 102],
+    [1, '<circle cx="80" cy="97" r="21"/>', 74, 102],
+    [1, '<circle cx="69" cy="62" r="21"/>', 62, 60],
+    [2, '<circle cx="100" cy="72" r="18"/>', 100, 72]] },
+  { name: 'a rocket', parts: [
+    [2, '<polygon points="74,112 46,152 76,140"/>', 62, 138],
+    [2, '<polygon points="126,112 154,152 124,140"/>', 138, 138],
+    [3, '<polygon points="84,140 116,140 100,184"/>', 100, 154],
+    [0, '<path d="M100 22 C132 52 132 110 126 140 L74 140 C68 110 68 52 100 22 Z"/>', 100, 122],
+    [1, '<circle cx="100" cy="78" r="16"/>', 100, 78]] },
+  { name: 'an ice cream', parts: [
+    [0, '<polygon points="68,112 132,112 100,188"/>', 100, 136],
+    [1, '<circle cx="100" cy="92" r="33"/>', 100, 102],
+    [2, '<circle cx="100" cy="56" r="27"/>', 100, 56],
+    [3, '<circle cx="100" cy="24" r="12"/>', 100, 24]] },
+  { name: 'a butterfly', parts: [
+    [1, '<ellipse cx="66" cy="132" rx="30" ry="25"/>', 64, 136],
+    [1, '<ellipse cx="134" cy="132" rx="30" ry="25"/>', 136, 136],
+    [0, '<ellipse cx="60" cy="74" rx="40" ry="34"/>', 58, 50],
+    [0, '<ellipse cx="140" cy="74" rx="40" ry="34"/>', 142, 50],
+    [3, '<circle cx="60" cy="78" r="13"/>', 60, 78],
+    [3, '<circle cx="140" cy="78" r="13"/>', 140, 78],
+    [-1, '<path d="M96 56 Q88 34 78 30 M104 56 Q112 34 122 30"/>'],
+    [2, '<ellipse cx="100" cy="100" rx="11" ry="46"/>', 100, 104]] },
+  { name: 'a car', parts: [
+    [1, '<path d="M52 106 L68 68 L132 68 L148 106 Z"/>', 100, 76],
+    [2, '<polygon points="70,102 80,84 97,84 97,102"/>', 86, 94],
+    [2, '<polygon points="103,84 120,84 130,102 103,102"/>', 115, 94],
+    [0, '<rect x="22" y="104" width="156" height="42" rx="12"/>', 100, 126],
+    [3, '<circle cx="62" cy="150" r="18"/>', 62, 150],
+    [3, '<circle cx="138" cy="150" r="18"/>', 138, 150]] },
+  { name: 'three balloons', parts: [
+    [-1, '<path d="M60 104 L100 152 M100 90 L100 152 M140 104 L100 152"/>'],
+    [0, '<ellipse cx="60" cy="72" rx="27" ry="33"/>', 60, 72],
+    [2, '<ellipse cx="140" cy="72" rx="27" ry="33"/>', 140, 72],
+    [1, '<ellipse cx="100" cy="56" rx="27" ry="33"/>', 100, 54],
+    [3, '<rect x="78" y="152" width="44" height="34" rx="4"/>', 100, 170]] }
+];
+function colorRound(mode) {
+  var P = pickFresh('colpic', COLOR_PICS), ng = 0, free = mode === 'free';
+  P.parts.forEach(function (p) { if (p[0] + 1 > ng) ng = p[0] + 1; });
+  var paints = shuffle(PAINTS.map(function (x, i) { return i; }));
+  var nums = (mode === 'sum' || mode === 'take') ? shuffle([2, 3, 4, 5, 6, 7, 8, 9, 10]) : [1, 2, 3, 4, 5, 6, 7, 8];
+  /* the swatches: every color in free mode, else the ones this picture needs plus two spares */
+  var sw = [];
+  (free ? PAINTS.map(function (x, i) { return i; }) : paints.slice(0, ng + 2)).forEach(function (c, i) {
+    sw.push({ c: c, n: (free || mode === 'word') ? '' : String(nums[i]) });
+  });
+  var lines = { free: 'Color the picture.', num: 'Color by number.', word: 'Read the color. Then color it in.', sum: 'Work out the sum. Then pick that number.', take: 'Work out the sum. Then pick that number.' };
+  return {
+    kind: 'color', mode: mode, P: P, gcol: paints.slice(0, ng), gnum: nums.slice(0, ng), sw: free ? sw : shuffle(sw),
+    say: lines[mode], hint: lines[mode] + (free ? ' Tap the green tick when you are done.' : ''), right: cap(P.name) + '! ' + (free ? 'Beautiful!' : pick(PRAISE))
+  };
+}
+function colorLabel(r, g) {
+  var n = r.gnum[g], a;
+  if (r.mode === 'num') return String(n);
+  if (r.mode === 'word') return PAINTS[r.gcol[g]][0];
+  if (r.mode === 'sum') { a = 1 + rnd(n - 1); return a + '+' + (n - a); }
+  a = n + 1 + rnd(12 - n);
+  return a + '\u2212' + (a - n);
+}
+function renderColor(r) {
+  var free = r.mode === 'free', h = '<svg class="colsvg" viewBox="0 0 200 200">';
+  r.P.parts.forEach(function (p, i) {
+    if (p[0] < 0) h += '<g fill="none" stroke="#1d2a44" stroke-width="2.5" stroke-linecap="round">' + p[1] + '</g>';
+    else h += '<g class="reg" data-i="' + i + '" fill="#ffffff" stroke="#1d2a44" stroke-width="2.5" stroke-linejoin="round">' + p[1] + '</g>';
+  });
+  if (!free) r.P.parts.forEach(function (p, i) {
+    if (p[0] >= 0 && p[2] != null) h += '<text class="lab" data-l="' + i + '" x="' + p[2] + '" y="' + p[3] + '">' + esc(colorLabel(r, p[0])) + '</text>';
+  });
+  promptEl.className = 'prompt colp';
+  promptEl.innerHTML = h + '</svg>';
+  choicesEl.className = 'choices paints';
+  choicesEl.innerHTML = '';
+  r.sel = null; r.fill = {}; r.miss = {}; r.left = 0;
+  r.P.parts.forEach(function (p) { if (p[0] >= 0) r.left++; });
+  r.sw.forEach(function (s) {
+    var b = el('button', 'paint', s.n);
+    b.type = 'button';
+    b.style.background = PAINTS[s.c][1];
+    b.setAttribute('aria-label', PAINTS[s.c][0]);
+    b.addEventListener('pointerdown', function (ev) {
+      ev.preventDefault(); unlockAudio();
+      if (busy || r.done || round !== r) return;
+      r.sel = s.c; sTap();
+      r.sw.forEach(function (x) { x.el.classList.toggle('sel', x === s); x.el.classList.remove('hint'); });
+    });
+    choicesEl.appendChild(b);
+    s.el = b;
+  });
+  function finish() {
+    r.done = true;
+    sDing(); burstFrom(promptEl, 50); cheerHelper();
+    roundDone(r, promptEl);
+  }
+  Array.prototype.forEach.call(promptEl.querySelectorAll('.reg'), function (g) {
+    g.addEventListener('pointerdown', function (ev) {
+      ev.preventDefault(); unlockAudio();
+      if (busy || r.done || round !== r) return;
+      var i = +g.getAttribute('data-i'), grp = r.P.parts[i][0];
+      if (r.sel == null) { say('Pick a color first.'); restart(choicesEl, 'shake'); return; }
+      if (free) {
+        g.setAttribute('fill', PAINTS[r.sel][1]); sPop();
+        if (!r.fill[i]) {
+          r.fill[i] = true; r.left--;
+          if (!r.left) {
+            var t = el('button', 'paint tick', '\u2705');
+            t.type = 'button'; t.setAttribute('aria-label', 'Done');
+            t.addEventListener('pointerdown', function (e2) { e2.preventDefault(); if (!busy && !r.done && round === r) finish(); });
+            choicesEl.appendChild(t);
+          }
+        }
+        return;
+      }
+      if (r.fill[i]) return;
+      if (r.sel === r.gcol[grp]) {
+        g.setAttribute('fill', PAINTS[r.sel][1]); sPop();
+        var lab = promptEl.querySelector('[data-l="' + i + '"]');
+        if (lab) lab.style.display = 'none';
+        r.fill[i] = true; r.left--;
+        r.sw.forEach(function (x) { x.el.classList.remove('hint'); });
+        if (!r.left) finish();
+      } else {
+        r.firstTry = false; r.wrong++;
+        r.miss[i] = (r.miss[i] || 0) + 1;
+        sBoing();
+        restart(choicesEl, 'shake');
+        if (r.miss[i] >= 2) r.sw.forEach(function (x) { if (x.c === r.gcol[grp]) x.el.classList.add('hint'); });
+      }
+    });
+  });
+}
+
 /* ================= levels ================= */
 var LEVELS = {
   read: [
@@ -2625,6 +2907,22 @@ var LEVELS = {
     { name: 'Pairs: sum and answer', need: 2, intro: 'Match the sum to the answer.', make: sumPairsRound },
     { name: 'Pairs: opposites', need: 2, intro: 'Match the opposites.', make: oppPairsRound }
   ],
+  puzzle: [
+    { name: '2 pieces', need: 2, intro: 'Put the puzzle together. Drag each piece to its place.', make: function () { return jigRound(2, 1, true); } },
+    { name: '4 pieces', need: 2, intro: 'Put the puzzle together.', make: function () { return jigRound(2, 2, true); } },
+    { name: '6 pieces', need: 2, intro: 'More pieces now!', make: function () { return jigRound(3, 2, true); } },
+    { name: '9 pieces', need: 2, intro: 'Nine pieces!', make: function () { return jigRound(3, 3, true); } },
+    { name: '9 pieces, no guide picture', need: 2, intro: 'Now there is no picture to help.', make: function () { return jigRound(3, 3, false); } },
+    { name: '12 pieces, no guide picture', need: 2, intro: 'Twelve pieces!', make: function () { return jigRound(4, 3, false); } },
+    { name: '16 pieces, no guide picture', need: 2, intro: 'Sixteen pieces!', make: function () { return jigRound(4, 4, false); } }
+  ],
+  color: [
+    { name: 'Free coloring', need: 3, intro: 'Pick a color. Then tap the picture. Tap the green tick when you are done.', make: function () { return colorRound('free'); } },
+    { name: 'Color by number', need: 2, intro: 'Color by number. Pick the color with the same number.', make: function () { return colorRound('num'); } },
+    { name: 'Color by word (read the color)', need: 2, intro: 'Read the color. Then color it in.', make: function () { return colorRound('word'); } },
+    { name: 'Color by sum (adding)', need: 2, intro: 'Work out the sum. Then pick that number.', make: function () { return colorRound('sum'); } },
+    { name: 'Color by sum (take away)', need: 2, intro: 'Work out the sum. Then pick that number.', make: function () { return colorRound('take'); } }
+  ],
   spell: [
     { name: 'Missing letter (c_t)', need: 3, intro: 'Which letter is missing?', make: missingLetterRound },
     { name: 'Spell short words (cat)', need: 4, intro: 'Spell the word.', make: function () { return spellRound(WORDS1, 'sp2', 1); } },
@@ -2667,7 +2965,7 @@ var HAS_HUB = location.pathname !== '/' && location.pathname !== '/index.html' &
 
 var worldsEl = $('worlds');
 WORLDS.forEach(function (W, i) {
-  var b = el('button', 'world', '<img class="ic" src="art/icon-' + W.k + '.webp" alt=""><div class="lvl" id="lvl-' + W.k + '"></div>');
+  var b = el('button', 'world', (W.emo ? '<div class="ic emo">' + W.emo + '</div>' : '<img class="ic" src="art/icon-' + W.k + '.webp" alt="">') + '<div class="lvl" id="lvl-' + W.k + '"></div>');
   b.type = 'button';
   b.setAttribute('aria-label', W.label);
   b.style.background = W.grad;
@@ -2717,8 +3015,8 @@ function showHome() {
 function enterWorld(w) {
   world = w; busy = false; introPending = true;
   homeEl.classList.remove('on'); playEl.classList.add('on');
-  monsterEl.src = 'art/helper-' + w + '.webp';
-  playEl.style.backgroundImage = 'url("art/bg-' + w + '.webp")';
+  monsterEl.src = 'art/helper-' + (worldOf(w).helper || w) + '.webp';
+  playEl.style.backgroundImage = 'url("art/bg-' + (worldOf(w).bgArt || w) + '.webp")';
   document.body.style.background = worldOf(w).bg;
   nextRound();
 }
@@ -2772,6 +3070,8 @@ function renderRound(r) {
   else if (r.kind === 'frog') renderFrog(r);
   else if (r.kind === 'sort') renderSort(r);
   else if (r.kind === 'match') renderMatch(r);
+  else if (r.kind === 'jig') renderJig(r);
+  else if (r.kind === 'color') renderColor(r);
   else renderChoice(r);
 }
 function nextRound() {
@@ -2780,6 +3080,7 @@ function nextRound() {
   stopSteps();
   speakerEl.classList.remove('wiggle');
   choicesEl.classList.remove('wait');
+  choicesEl.style.minHeight = '';
   var ws = save.w[world];
   var lv = LEVELS[world][ws.level - 1];
   var r = lv.make();
@@ -3005,7 +3306,7 @@ function roundDone(r, fromNode) {
 
 function celebrate(cb) {
   partyEl.classList.add('on');
-  partyEl.querySelector('.trophy').innerHTML = '<img src="art/helper-' + world + '.webp" alt="">';
+  partyEl.querySelector('.trophy').innerHTML = '<img src="art/helper-' + (worldOf(world).helper || world) + '.webp" alt="">';
   partyEl.querySelector('.stars').innerHTML = '\u{1F3C6}\u2B50\u2B50\u2B50';
   restart(partyEl.querySelector('.trophy'), 'trophy');
   sFanfare();
